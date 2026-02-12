@@ -1,0 +1,38 @@
+.users-page {
+  padding: 20px;
+}
+
+.users-page h2 {
+  margin-bottom: 20px;
+}
+
+.table-box {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+}
+
+.table-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-box th {
+  background: #f3f4f6;
+  padding: 12px;
+  text-align: left;
+}
+
+.table-box td {
+  padding: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+}
