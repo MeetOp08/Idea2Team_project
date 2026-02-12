@@ -1,0 +1,48 @@
+.page-container {
+  padding: 20px;
+}
+
+.page-title {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th {
+  background: #f3f4f6;
+  text-align: left;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn.danger:hover {
+  background: #b91c1c;
+}

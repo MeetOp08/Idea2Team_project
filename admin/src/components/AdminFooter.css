@@ -1,0 +1,96 @@
+/**
+ * AdminFooter Styles
+ * 
+ * Styles for the application footer with:
+ * - Clean, minimal design
+ * - Responsive layout
+ * - Footer links and version info
+ */
+
+/* Footer Container */
+.admin-footer {
+  background: var(--color-white);
+  border-top: 1px solid var(--color-light-secondary);
+  padding: var(--spacing-lg) var(--spacing-md);
+  margin-top: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Footer Content */
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+/* Footer Text */
+.footer-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Footer Links */
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+}
+
+.footer-links a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+}
+
+.footer-links a:hover {
+  color: var(--color-primary-dark);
+  background-color: var(--color-light);
+}
+
+.footer-links a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Footer Divider */
+.divider {
+  color: var(--color-light-secondary);
+  margin: 0 var(--spacing-xs);
+}
+
+/* Version Information */
+.version {
+  color: var(--color-text-muted);
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-text {
+    flex: 1 0 100%;
+  }
+
+  .footer-links {
+    justify-content: center;
+  }
+}

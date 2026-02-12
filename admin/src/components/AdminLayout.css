@@ -1,0 +1,61 @@
+/**
+ * AdminLayout Styles
+ * 
+ * Manages the responsive grid layout of the admin panel with:
+ * - Fixed sidebar navigation
+ * - Flexible main content area
+ * - Proper spacing and shadows
+ */
+
+/* Main Layout Container */
+.admin-layout {
+  display: flex;
+  gap: 0;
+  min-height: 100vh;
+  background: var(--color-dark);
+}
+
+/* Main Content Area */
+.admin-layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-light);
+  overflow: hidden;
+}
+
+/* Main Page Content */
+.admin-layout-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar Styling */
+.admin-layout-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-layout-content::-webkit-scrollbar-track {
+  background: var(--color-light-secondary);
+}
+
+.admin-layout-content::-webkit-scrollbar-thumb {
+  background: var(--color-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.admin-layout-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Responsive Design for Small Screens */
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .admin-layout-main {
+    min-height: calc(100vh - 60px);
+  }
+}
