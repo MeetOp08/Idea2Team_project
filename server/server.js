@@ -2,6 +2,7 @@ const mysql = require("mysql2");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const { default: Swal } = require("sweetalert2");
 
 const app = express();
 app.use(express.json());
@@ -48,7 +49,62 @@ app.post('/api/register', (req, res) => {
 
             res.json({
                 message: "Data Inserted",
-                userId: result.insertId
+                user_id: result.insertId
+            });
+        }
+    );
+});
+
+app.post("/api/post-project", (req, res) => {
+
+    console.log("BODY RECEIVED:", req.body);
+
+    const {
+        title,
+        category,
+        description,
+        required_skills,
+        experience_level,
+        budget,
+        budget_type,
+        deadline
+    } = req.body;
+
+    const founder_id = 1; // temporary (later from login session)
+
+    const query = `
+        INSERT INTO projects
+        (founder_id, title, category, description,
+         required_skills, experience_level,
+         budget, budget_type, deadline)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    con.query(
+        query,
+        [
+            founder_id,
+            title,
+            category,
+            description,
+            required_skills,
+            experience_level,
+            budget ? parseInt(budget) : null,
+            budget_type,
+            deadline
+        ],
+        (err, result) => {
+
+            if (err) {
+                console.log("SQL ERROR:", err);
+                return res.status(500).json({
+                    error: err.sqlMessage
+                });
+            }
+
+            res.json({
+                message: "Project Inserted",
+                project_id: result.insertId
             });
         }
     );
