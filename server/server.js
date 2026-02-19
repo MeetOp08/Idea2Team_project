@@ -22,6 +22,32 @@ db.connect((err) => {
         console.log("   Connected to the database successfully!✅");
     }
 });
+//admin login
+app.post("/api/admin-login", (req, res) => {
+
+    const email = req.body.email.trim();
+    const password = req.body.password.trim();
+
+    console.log("Admin Email:", email);
+    console.log("Admin Password:", password);
+
+    const query = "SELECT * FROM admin WHERE email = ? AND password = ?";
+    const admin_id = 1;
+    db.query(`${query}`, [admin_id,email, password], (err, results) => {
+        if(email === "patelmeet52271@gmail.com" && password === "Meet@0811P_"){
+            return res.json({
+                message: "Admin Login Successful",
+                email: email
+            });
+        } else {
+            return res.json({
+                message: "Invalid Admin Credentials"
+            });
+        }
+    });
+});
+
+
 
 app.post("/api/register", (req, res) => {
     console.log

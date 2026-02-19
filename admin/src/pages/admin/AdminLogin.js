@@ -5,10 +5,14 @@ import Swal from 'sweetalert2';
 
 const AdminLogin = () => {
     function handleLogin() {
-        const email = document.querySelector("#admin_email").value;
-        const password = document.querySelector("#admin_password").value;
+        const email = document.querySelector("#email").value;
+        const password = document.querySelector("#password").value;
 
-        axios.post("http://localhost:1337/api/admin/login", {
+        if(!email || !password) {
+            return Swal.fire("Error", "Please enter both email and password.", "error");
+            
+        }
+        axios.post("http://localhost:1337/api/admin-login", {
             email,
             password
         }).then((res) => {
@@ -16,8 +20,8 @@ const AdminLogin = () => {
             Swal.fire("Success", "Welcome back, Admin!", "success");
             window.location.href = "/dashboard";
         }).catch((err) => {
-            console.error(err);
-            Swal.fire("Error", err.response?.data?.message || "Invalid admin credentials.", "error");
+            
+            Swal.fire("Error","Invalid admin credentials.", "error");
         });
     }
 
@@ -47,11 +51,11 @@ const AdminLogin = () => {
 
                     <div className="form-group">
                         <label className="form-label">Admin Email</label>
-                        <input id="admin_email" type="email" className="form-input" placeholder="admin@idea2team.com" />
+                        <input id="email" type="email" className="form-input" placeholder="admin@idea2team.com" />
                     </div>
                     <div className="form-group">
                         <label className="form-label">Password</label>
-                        <input id="admin_password" type="password" className="form-input" placeholder="Enter admin password" />
+                        <input id="password" type="password" className="form-input" placeholder="Enter admin password" />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--gray-600)', cursor: 'pointer' }}>
