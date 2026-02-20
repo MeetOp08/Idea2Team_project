@@ -1,13 +1,55 @@
-import React from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import DataTable from '../../components/tables/DataTable';
-import Avatar from '../../components/common/Avatar';
-import StatusBadge from '../../components/common/StatusBadge';
+import { useState,useEffect } from 'react';
+import axios from 'axios';
+import '../../styles/ManageUsers.css';
 import Button from '../../components/common/Button';
 import SearchBar from '../../components/common/SearchBar';
-import { users } from '../../data/dummyData';
+
 
 const ManageUsers = () => {
+    const [users, setUsers] = useState([]);
+
+   useEffect(()=>{
+    axios.get("http://localhost:1337/api/Manage-Users")
+    .then(response => { 
+        setUsers(response.data.data);
+    })
+    .catch(error => {
+        console.error(error);
+    });
+})
+
+
+ const handleView = (id) => {
+  const user = users.find(user => user.user_id === id);
+  if (user) {
+    console.log("Users Details:","\nUser id:", id,
+                                 "\nFull Name:", user.full_name, 
+                                 "\nRole:", user.role, 
+                                 "\nEmail:", user.email, 
+                                 "\nPassword:", user.password,
+                                 "\nPhone:", user.phone);
+  }
+};
+
+const handleWarning = (id) => {
+    const warningMessage = prompt("Enter warning message:");
+    if (warningMessage) {
+        alert(`Warning sent to user with id: ${id}\nMessage: ${warningMessage}`);
+    }
+    console.log(`Warning sent to user with id: ${id}\nMessage: ${warningMessage}`);
+
+}
+
+const handleDelete = (id) => {
+  if (window.confirm("Are you sure you want to delete?")) {
+    axios.delete(`/api/users/${id}`)
+      .then(() => {
+        setUsers(users.filter(user => user.user_id !== id));
+      })
+      .catch(err => console.log(err));
+  }
+};
     return (
         <DashboardLayout role="admin">
             <div className="page-header">
@@ -27,37 +69,39 @@ const ManageUsers = () => {
                 </div>
             </div>
 
-            <DataTable
-                columns={['User', 'Role', 'Status', 'Joined', 'Actions']}
-                data={users}
-                renderRow={(user, i) => (
-                    <tr key={i}>
-                        <td>
-                            <div className="table-user-cell">
-                                <Avatar initials={user.initials} color={user.color} size="sm" />
-                                <div>
-                                    <p className="user-name">{user.name}</p>
-                                    <p className="user-email">{user.email}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span className="badge badge-primary">{user.role}</span>
-                        </td>
-                        <td>
-                            <StatusBadge status={user.status} />
-                        </td>
-                        <td>{user.joinDate}</td>
-                        <td>
-                            <div className="table-actions">
-                                <Button variant="ghost" size="sm">View</Button>
-                                <Button variant="outline" size="sm">Edit</Button>
-                                <Button variant="danger" size="sm">Ban</Button>
-                            </div>
-                        </td>
-                    </tr>
-                )}
-            />
+
+            <div className="table">
+                <table className="user-table">
+                    <thead>
+                        <tr>
+                            <th>Index</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>Phone No</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {users.map((val,index)=>(
+                            <tr key={val.user_id}>
+                                <td>{index+1}</td>
+                                <td>{val.full_name}</td>
+                                <td>{val.email}</td>
+                                <td>{val.password}</td>
+                                <td>{val.role}</td>
+                                <td>{val.phone}</td>
+                                <td>
+                                    <button className="action-btn view" onClick={()=>{handleView(val.user_id)}}>View</button>
+                                    <button className="action-btn edit" onClick={()=>{handleWarning(val.user_id)}}>Warning</button>
+                                    <button className="action-btn delete" onClick={()=>{handleDelete(val.user_id)}}>Delete</button>
+                                </td>
+                            </tr>
+                       ))}
+                    </tbody>
+                </table>
+            </div>
         </DashboardLayout>
     );
 };

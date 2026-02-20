@@ -47,8 +47,6 @@ app.post("/api/admin-login", (req, res) => {
     });
 });
 
-
-
 app.post("/api/register", (req, res) => {
     console.log
     const { role, full_name, email, password, phone } = req.body;
@@ -70,6 +68,24 @@ app.post("/api/register", (req, res) => {
             })
         }
     })
+})
+
+app.get("/api/Manage-Users",(req,res)=>{
+    const query = `SELECT *FROM users`;
+    db.query(query,(err,result)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).json({
+                message: "An error occurred while fetching users. Please try again."
+            })
+        } else {    
+            res.status(200).json({
+                message: "Users fetched successfully!",
+                data: result
+            });
+        }
+    }) 
+
 })
 app.post("/api/post-project", (req, res) => {
     console.log("Received project data:", req.body);
