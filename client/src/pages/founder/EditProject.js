@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import Button from '../../components/common/Button';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useParams, useNavigate } from "react-router-dom";

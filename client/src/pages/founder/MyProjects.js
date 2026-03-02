@@ -78,6 +78,7 @@ const MyProjects = () => {
                             <th>Budget</th>
                             <th>Duration</th>
                             <th>Actions</th>
+                           
                         </tr>
                     </thead>
 
@@ -109,6 +110,7 @@ const MyProjects = () => {
                                     </button>
 
                                 </td>
+                                
                             </tr>
 
                         ))}
