@@ -28,6 +28,7 @@ import BrowseProjects from './pages/freelancer/BrowseProjects';
 import MyApplications from './pages/freelancer/MyApplications';
 import FreelancerWorkspace from './pages/freelancer/FreelancerWorkspace';
 import FreelancerProfile from './pages/freelancer/FreelancerProfile';
+import ApplyProject from './pages/freelancer/ApplyProject';
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
         <Route path="/freelancer/applications" element={<MyApplications />} />
         <Route path="/freelancer/workspace" element={<FreelancerWorkspace />} />
         <Route path="/freelancer/profile" element={<FreelancerProfile />} />
+        <Route path="/apply-project/:id" element={<ApplyProject />} />
       </Routes>
     </Router>
   );

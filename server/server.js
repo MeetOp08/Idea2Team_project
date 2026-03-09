@@ -182,6 +182,28 @@ app.post("/api/post-project", (req, res) => {
         res.json({ success: true });
     });
 });
+app.post("/api/apply-project",(req,res)=>{
+
+const {project_id,freelancer_id,proposal,budget,duration} = req.body;
+
+const query = `
+INSERT INTO applications
+(project_id,freelancer_id,proposal,budget,duration,status)
+VALUES (?,?,?,?,?,'pending')
+`;
+
+db.query(query,[project_id,freelancer_id,proposal,budget,duration],(err)=>{
+
+if(err){
+console.log(err);
+return res.status(500).json({message:"Application failed"});
+}
+
+res.json({message:"Application submitted"});
+
+});
+
+});
 app.get("/api/Manage-Users", (req, res) => {
     const query = `SELECT *FROM users`;
     db.query(query, (err, result) => {
@@ -199,7 +221,23 @@ app.get("/api/Manage-Users", (req, res) => {
     })
 
 })
-
+app.get("/api/userinfo", (req, res) => {
+    const userId = req.headers["user-id"];
+    const query = `SELECT * FROM users WHERE user_id = ?`;
+    db.query(query, [userId], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({
+                message: "An error occurred while fetching user info. Please try again."
+            });
+        } else {
+            res.status(200).json({
+                message: "User info fetched successfully!",
+                data: result[0]
+            });
+        }
+    });
+});
 app.get("/api/myProject/:id", (req, res) => {
 
     const founder_id = req.params.id;

@@ -722,6 +722,14 @@
     padding: 0 var(--space-6) var(--space-6);
 }
 
+.profile-details-list {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: var(--gray-500);
+}
+
 .profile-section {
     margin-bottom: var(--space-6);
 }
@@ -731,6 +739,88 @@
     font-weight: var(--weight-semibold);
     margin-bottom: var(--space-3);
     color: var(--gray-900);
+}
+
+.profile-cover-freelancer {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+}
+
+.profile-avatar-freelancer {
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+}
+
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.skill-tag {
+    padding: 6px 14px;
+    font-size: 13px;
+    background: var(--primary-50);
+    color: var(--primary-700);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--primary-100);
+}
+
+.skill-remove-btn {
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.portfolio-grid {
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.portfolio-card {
+    padding: 20px;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    background: var(--white, #ffffff);
+}
+
+.portfolio-card-img {
+    height: 140px;
+    background: var(--gray-100);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400);
+    font-size: 24px;
+}
+
+.portfolio-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--gray-900);
+}
+
+.portfolio-card-desc {
+    font-size: 14px;
+    color: var(--gray-500);
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.portfolio-card-tech {
+    font-size: 13px;
+    color: var(--primary-600);
+    font-weight: 500;
+    background: var(--primary-50);
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -801,6 +891,10 @@
     border-bottom: none;
 }
 
+.form-section-spaced {
+    margin-top: 32px;
+}
+
 /* Section Header — icon + title side-by-side */
 .form-section-header {
     display: flex;
@@ -852,6 +946,10 @@
 
 .form-grid .full-width {
     grid-column: 1 / -1;
+}
+
+.form-group-half {
+    max-width: 50%;
 }
 
 /* ══════════════════════════════════
@@ -908,6 +1006,10 @@
     resize: vertical;
     min-height: 120px;
     line-height: var(--leading-relaxed);
+}
+
+.form-card .form-textarea-large {
+    min-height: 140px;
 }
 
 /* ── Select ── */

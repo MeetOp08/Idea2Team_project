@@ -19,8 +19,8 @@ const Topbar = ({ collapsed = false, onToggle }) => {
                     💬
                 </button>
                 <div className="topbar-user">
-                    <div className="topbar-avatar">AM</div>
-                    <span className="topbar-user-name">Alex Morgan</span>
+                    <div className="topbar-avatar">MP</div>
+                    <span className="topbar-user-name">Meet Patel</span>
                 </div>
             </div>
         </header>

@@ -61,7 +61,7 @@ const Sidebar = ({ role = 'founder', collapsed = false, onToggle }) => {
                 <div className="sidebar-user">
                     <div className="sidebar-user-avatar">{user.initials}</div>
                     <div className="sidebar-user-info">
-                        <p className="sidebar-user-name">{user.name}</p>
+                       
                         <p className="sidebar-user-role">{user.role}</p>
                     </div>
                 </div>

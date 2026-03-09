@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import {useState} from "react";
+import { useState } from "react";
 
 
 
 const Login = () => {
-    const[showPassword,setShowPassword]=useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     function handleLogin() {
         const email = document.querySelector("#login_email").value;
         const password = document.querySelector("#login_password").value;
@@ -18,6 +18,14 @@ const Login = () => {
             password
         }).then((res) => {
             Swal.fire("Success", "Login successful!", "success");
+
+            // Store user info in localStorage
+            if (res.data && res.data.user) {
+                localStorage.setItem("user_id", res.data.user.user_id);
+                localStorage.setItem("role", res.data.user.role);
+                localStorage.setItem("fullname", res.data.user.fullname);
+            }
+
             // Redirect based on role
             const role = res.data?.user?.role;
             if (role === 'founder') {
@@ -39,9 +47,9 @@ const Login = () => {
                     `
                 });
             }
-             else {
+            else {
                 Swal.fire("Error", err.response?.data?.message || "Invalid credentials", "error");
-            }        
+            }
         });
     }
 
@@ -73,30 +81,30 @@ const Login = () => {
                     </div>
 
                     <div className="form-group">
-                    <label className="form-label">Password</label>
+                        <label className="form-label">Password</label>
 
-                    <div style={{ position: "relative" }}>
-                        <input
-                            id="login_password"
-                            type={showPassword ? "text" : "password"}
-                            className="form-input"
-                            placeholder="Enter your password"
-                        />
+                        <div style={{ position: "relative" }}>
+                            <input
+                                id="login_password"
+                                type={showPassword ? "text" : "password"}
+                                className="form-input"
+                                placeholder="Enter your password"
+                            />
 
-                        <span
-                            onClick={() => setShowPassword(!showPassword)}
-                            style={{
-                                position: "absolute",
-                                right: "25px",
-                                color:"blue",
-                                marginTop:"8px",
-                                cursor: "pointer",
-                            }}
-                        >
-                            {showPassword ? "Hide" : "Show"}
-                        </span>
+                            <span
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "25px",
+                                    color: "blue",
+                                    marginTop: "8px",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--gray-600)', cursor: 'pointer' }}>
