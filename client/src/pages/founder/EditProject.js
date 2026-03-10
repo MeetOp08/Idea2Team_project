@@ -16,7 +16,8 @@ const EditProject = () => {
         required_skills: "",
         budget_min: "",
         budget_max: "",
-        duration_weeks: ""
+        duration_weeks: "",
+        team_members_required: ""
     });
 
     // ✅ Load Project
@@ -108,6 +109,14 @@ const EditProject = () => {
     name="duration_weeks"
     value={form.duration_weeks}
     onChange={handleChange}
+/>
+
+<label>Team Members Required</label>
+<input
+    name="team_members_required"
+    value={form.team_members_required}
+    onChange={handleChange}
+    type="number"
 />
 
 <button className="update-btn" onClick={handleUpdate}>

@@ -131,6 +131,10 @@ const MyProjects = () => {
                                 <strong>Duration:</strong> {val.duration_weeks} weeks
                             </p>
 
+                            <p className="project-team">
+                                <strong>Team Required:</strong> {val.team_members_required} freelancers
+                            </p>
+
                             <div className="status-line">
                                 Status: <span className="status active">Active</span>
                             </div>

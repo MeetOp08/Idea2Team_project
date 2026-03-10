@@ -155,15 +155,16 @@ app.post("/api/post-project", (req, res) => {
         experience_level,
         budget_min,
         budget_max,
-        duration_weeks
+        duration_weeks,
+        team_members_required
     } = req.body;
 
     const sql = `
         INSERT INTO projects
         (founder_id,title,description,category,required_skills,
         project_stage,collaboration_type,experience_level,
-        budget_min,budget_max,duration_weeks)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        budget_min,budget_max,duration_weeks,team_members_required)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
     `;
 
     db.query(sql, [
@@ -177,7 +178,8 @@ app.post("/api/post-project", (req, res) => {
         experience_level,
         budget_min,
         budget_max,
-        duration_weeks
+        duration_weeks,
+        team_members_required
     ], (err, result) => {
 
         if (err) {
@@ -352,6 +354,33 @@ app.get("/api/projects", (req, res) => {
     });
 
 });
+app.get("/api/founder-applications/:founderId", (req, res) => {
+
+    const founderId = req.params.founderId;
+
+    const query = `
+        SELECT applications.*, users.full_name, projects.title as project_title
+        FROM applications
+        JOIN users ON applications.freelancer_id = users.user_id
+        JOIN projects ON applications.project_id = projects.project_id
+        WHERE projects.founder_id = ?
+    `;
+
+    db.query(query, [founderId], (err, result) => {
+
+        if (err) {
+            console.log(err);
+            return res.status(500).json({
+                message: "Error fetching applications"
+            });
+        }
+
+        res.json({
+            success: true,
+            data: result
+        });
+    });
+});
 app.put("/api/block-user/:id", (req, res) => {
 
     const userId = req.params.id;
@@ -395,7 +424,8 @@ app.put("/api/founder/edit-project/:id", (req, res) => {
         required_skills,
         budget_min,
         budget_max,
-        duration_weeks
+        duration_weeks,
+        team_members_required
     } = req.body;
 
     const query = `
@@ -405,7 +435,8 @@ app.put("/api/founder/edit-project/:id", (req, res) => {
             required_skills = ?,
             budget_min = ?,
             budget_max = ?,
-            duration_weeks = ?
+            duration_weeks = ?,
+            team_members_required = ?
         WHERE project_id = ?
     `;
 
@@ -416,6 +447,7 @@ app.put("/api/founder/edit-project/:id", (req, res) => {
         budget_min,
         budget_max,
         duration_weeks,
+        team_members_required,
         projectId
     ], (err) => {
 

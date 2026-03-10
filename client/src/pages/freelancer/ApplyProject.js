@@ -34,9 +34,12 @@ setProjects(res.data.data);
 
 const handleSubmit = () => {
 
-const user = JSON.parse(localStorage.getItem("user"));
+const freelancer_id = localStorage.getItem("user_id");
 
-const freelancer_id = user.user_id;
+if (!freelancer_id) {
+    alert("Please log in to apply for projects.");
+    return;
+}
 
 axios.post("http://localhost:1337/api/apply-project", {
 
@@ -139,6 +142,20 @@ type="number"
 value={budget}
 onChange={(e)=>setBudget(e.target.value)}
 placeholder="Enter your price"
+/>
+
+</div>
+
+<div className="form-group">
+
+<label>Duration (in weeks)</label>
+
+<input
+className="form-input"
+type="number"
+value={duration}
+onChange={(e)=>setDuration(e.target.value)}
+placeholder="Estimated weeks"
 />
 
 </div>

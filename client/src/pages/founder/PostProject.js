@@ -19,10 +19,11 @@ const PostProject = () => {
         const budget_max = document.querySelector("#budget_max").value;
         const duration_weeks = document.querySelector("#duration_weeks").value;
         const required_skills = document.querySelector("#required_skills").value;
+        const team_members_required = document.querySelector("#team_members_required").value;
 
-        console.log(title, description, category, project_stage, collaboration_type, experience_level, budget_min, budget_max, duration_weeks, required_skills);
+        console.log(title, description, category, project_stage, collaboration_type, experience_level, budget_min, budget_max, duration_weeks, required_skills, team_members_required);
 
-        if (!title || !description || !category || !project_stage || !collaboration_type || !experience_level || !budget_min || !budget_max || !duration_weeks) {
+        if (!title || !description || !category || !project_stage || !collaboration_type || !experience_level || !budget_min || !budget_max || !duration_weeks || !team_members_required) {
             return Swal.fire("Error", "Please fill all the fields", "error");
         }
 
@@ -40,7 +41,8 @@ const PostProject = () => {
             experience_level,
             budget_min,
             budget_max,
-            duration_weeks
+            duration_weeks,
+            team_members_required
         })
             .then((res) => {
                 console.log(res.data);
@@ -159,6 +161,11 @@ const PostProject = () => {
 <div className="pp-field">
 <label className="pp-label">Duration (weeks)</label>
 <input id="duration_weeks" type="number" className="pp-input"/>
+</div>
+
+<div className="pp-field">
+<label className="pp-label">Team Members</label>
+<input id="team_members_required" type="number" className="pp-input" defaultValue="1" />
 </div>
 
 </div>
