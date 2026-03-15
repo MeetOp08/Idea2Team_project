@@ -192,26 +192,40 @@ app.post("/api/post-project", (req, res) => {
 });
 app.post("/api/apply-project",(req,res)=>{
 
-const {project_id,freelancer_id,proposal,budget,duration} = req.body;
+    const {
+        project_id,
+        freelancer_id,
+        proposal_message,
+        expected_salary
+    } = req.body;
 
-const query = `
-INSERT INTO applications
-(project_id,freelancer_id,proposal,budget,duration,status)
-VALUES (?,?,?,?,?,'pending')
-`;
+    console.log(req.body);
 
-db.query(query,[project_id,freelancer_id,proposal,budget,duration],(err)=>{
+    const query = `
+    INSERT INTO applications
+    (project_id, freelancer_id, proposal_message, expected_salary)
+    VALUES (?,?,?,?)
+    `;
 
-if(err){
-console.log(err);
-return res.status(500).json({message:"Application failed"});
-}
+    db.query(
+        query,
+        [project_id, freelancer_id, proposal_message, expected_salary],
+        (err,result)=>{
 
-res.json({message:"Application submitted"});
+        if(err){
+            console.log(err);
+            return res.status(500).json({
+                message:"Error inserting application"
+            })
+        }
 
-});
+        res.json({
+            success:true,
+            message:"Application submitted successfully"
+        })
 
-});
+    })
+})
 app.get("/api/Manage-Users", (req, res) => {
     const query = `SELECT *FROM users`;
     db.query(query, (err, result) => {
@@ -370,7 +384,7 @@ app.get("/api/founder-applications/:founderId", (req, res) => {
 
         if (err) {
             console.log(err);
-            return res.status(500).json({
+             return res.status(500).json({
                 message: "Error fetching applications"
             });
         }
@@ -381,6 +395,21 @@ app.get("/api/founder-applications/:founderId", (req, res) => {
         });
     });
 });
+app.get("/api/info-projects/:id",(req,res)=>{
+    const project_id = req.params.id;
+    console.log("Project_Id:",project_id);
+    const query = `SELECT * FROM projects WHERE project_id=?`
+    db.query(query,[project_id],(err,result)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).json({message:"Error Occoure in fatching data"})
+        }
+        res.json({
+            success:true,
+            data:result[0]
+        })
+    })
+})
 app.put("/api/block-user/:id", (req, res) => {
 
     const userId = req.params.id;
