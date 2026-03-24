@@ -1,9 +1,9 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const multer = require('multer');
-const mysql = require('mysql2');
-const path = require('path');
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const mysql = require("mysql2");
+const path = require("path");
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -11,165 +11,176 @@ app.use(bodyParser.json());
 app.use("/public", express.static("public"));
 
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "idea2team"
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "idea2team",
 });
 
 db.connect((err) => {
-    if (err) {
-        console.error("Connection Failed❌ and error is:", err);
-    } else {
-        console.log("   Connected to the database successfully!✅");
-    }
+  if (err) {
+    console.error("Connection Failed❌ and error is:", err);
+  } else {
+    console.log("   Connected to the database successfully!✅");
+  }
 });
 //admin login
 app.post("/api/admin-login", (req, res) => {
+  const email = req.body.email.trim();
+  const password = req.body.password.trim();
 
-    const email = req.body.email.trim();
-    const password = req.body.password.trim();
+  console.log("Admin Email:", email);
+  console.log("Admin Password:", password);
 
-    console.log("Admin Email:", email);
-    console.log("Admin Password:", password);
-
-    const query = "SELECT * FROM admin WHERE email = ? AND password = ?";
-    db.query(query, [email, password], (err, results) => {
-        if (email === "patelmeet52271@gmail.com" && password === "Meet@0811P_") {
-            return res.json({
-                message: "Admin Login Successful",
-                email: email,
-                admin_id: 1
-            });
-        } else if (results && results.length > 0) {
-            return res.json({
-                message: "Admin Login Successful",
-                email: email,
-                admin_id: results[0].admin_id
-            });
-        } else {
-            return res.json({
-                message: "Invalid Admin Credentials"
-            });
-        }
-    });
+  const query = "SELECT * FROM admin WHERE email = ? AND password = ?";
+  db.query(query, [email, password], (err, results) => {
+    if (email === "patelmeet52271@gmail.com" && password === "Meet@0811P_") {
+      return res.json({
+        message: "Admin Login Successful",
+        email: email,
+        admin_id: 1,
+      });
+    } else if (results && results.length > 0) {
+      return res.json({
+        message: "Admin Login Successful",
+        email: email,
+        admin_id: results[0].admin_id,
+      });
+    } else {
+      return res.json({
+        message: "Invalid Admin Credentials",
+      });
+    }
+  });
 });
 
 app.post("/api/register", (req, res) => {
-    const { full_name, email, password, phone, role } = req.body;
+  const { full_name, email, password, phone, role } = req.body;
 
-    // Validate required fields
-    if (!full_name || !email || !password || !phone || !role) {
-        return res.status(400).json({ message: "Please provide all required fields" });
+  // Validate required fields
+  if (!full_name || !email || !password || !phone || !role) {
+    return res
+      .status(400)
+      .json({ message: "Please provide all required fields" });
+  }
+
+  const checkQuery = "SELECT * FROM users WHERE email = ?";
+  db.query(checkQuery, [email], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Server error" });
+    }
+    if (result.length > 0) {
+      return res.status(400).json({ message: "Email already exists" });
     }
 
-    const checkQuery = "SELECT * FROM users WHERE email = ?";
-    db.query(checkQuery, [email], (err, result) => {
+    const insertQuery =
+      "INSERT INTO users (full_name, email, password, phone, role, status) VALUES (?, ?, ?, ?, ?, 'active')";
+    db.query(
+      insertQuery,
+      [full_name, email, password, phone, role],
+      (err, result) => {
         if (err) {
-            console.error(err);
-            return res.status(500).json({ message: "Server error" });
+          console.error(err);
+          return res
+            .status(500)
+            .json({ message: "Server error during registration" });
         }
-        if (result.length > 0) {
-            return res.status(400).json({ message: "Email already exists" });
-        }
-
-        const insertQuery = "INSERT INTO users (full_name, email, password, phone, role, status) VALUES (?, ?, ?, ?, ?, 'active')";
-        db.query(insertQuery, [full_name, email, password, phone, role], (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ message: "Server error during registration" });
-            }
-            res.status(201).json({ message: "User registered successfully!" });
-        });
-    });
+        res.status(201).json({ message: "User registered successfully!" });
+      },
+    );
+  });
 });
 
 app.post("/api/login", (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    return res
+      .status(400)
+      .json({ message: "Please provide email and password" });
+  }
 
-    if (!req.body.email || !req.body.password) {
-        return res.status(400).json({ message: "Please provide email and password" });
+  const email = req.body.email.trim();
+  const password = req.body.password.trim();
+
+  const query = "SELECT * FROM users WHERE email=? AND password=?";
+
+  db.query(query, [email, password], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Server error" });
     }
 
-    const email = req.body.email.trim();
-    const password = req.body.password.trim();
+    if (result.length === 0) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
-    const query = "SELECT * FROM users WHERE email=? AND password=?";
+    const user = result[0];
 
-    db.query(query, [email, password], (err, result) => {
+    if (user.status === "blocked") {
+      return res.status(403).json({ message: "Your account is blocked" });
+    }
 
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Server error" });
-        }
-
-        if (result.length === 0) {
-            return res.status(401).json({ message: "Invalid email or password" });
-        }
-
-        const user = result[0];
-
-        if (user.status === "blocked") {
-            return res.status(403).json({ message: "Your account is blocked" });
-        }
-
-        // ✅ SEND ONLY REQUIRED DATA
-        res.json({
-            success: true,
-            user: {
-                user_id: user.user_id,
-               fullname: user.full_name,
-                email: user.email,
-                role: user.role
-            }
-        });
+    // ✅ SEND ONLY REQUIRED DATA
+    res.json({
+      success: true,
+      user: {
+        user_id: user.user_id,
+        fullname: user.full_name,
+        email: user.email,
+        role: user.role,
+      },
     });
+  });
 });
 // Forgot Password Endpoint
 app.post("/api/forgot-password", (req, res) => {
-    const { email } = req.body;
-    if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+  const query = "SELECT * FROM users WHERE email = ?";
+  db.query(query, [email], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Server error" });
     }
-    const query = "SELECT * FROM users WHERE email = ?";
-    db.query(query, [email], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ message: "Server error" });
-        }
-        if (result.length === 0) {
-            return res.status(404).json({ message: "No account associated with this email" });
-        }
-        // In a real app, generate a reset token and email it.
-        return res.json({ message: "Password reset link has been sent (simulated)." });
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No account associated with this email" });
+    }
+    // In a real app, generate a reset token and email it.
+    return res.json({
+      message: "Password reset link has been sent (simulated).",
     });
+  });
 });
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public');    
-    },
-    filename:function(req,file,cb){
-        cb(null,Date.now() + path.extname(file.originalname));
-    }
+  destination: (req, file, cb) => {
+    cb(null, "public");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
 });
 const upload = multer({ storage: storage });
-app.post("/api/post-project",upload.single('upload_file'), (req, res) => {
-
-    const {
-        founder_id,
-        title,
-        description,
-        category,
-        required_skills,
-        project_stage,
-        collaboration_type,
-        experience_level,
-        budget_min,
-        budget_max,
-        duration_weeks,
-        team_members_required
-    } = req.body;
-    const upload_file = req.file ? req.file.filename : null;
-    const sql = `
+app.post("/api/post-project", upload.single("upload_file"), (req, res) => {
+  const {
+    founder_id,
+    title,
+    description,
+    category,
+    required_skills,
+    project_stage,
+    collaboration_type,
+    experience_level,
+    budget_min,
+    budget_max,
+    duration_weeks,
+    team_members_required,
+  } = req.body;
+  const upload_file = req.file ? req.file.filename : null;
+  const sql = `
         INSERT INTO projects
         (founder_id,title,description,category,required_skills,
         project_stage,collaboration_type,experience_level,
@@ -177,312 +188,298 @@ app.post("/api/post-project",upload.single('upload_file'), (req, res) => {
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
     `;
 
-    db.query(sql, [
-        founder_id,
-        title,
-        description,
-        category,
-        required_skills,
-        project_stage,
-        collaboration_type,
-        experience_level,
-        budget_min,
-        budget_max,
-        duration_weeks,
-        team_members_required
-        ,upload_file
-    ], (err, result) => {
+  db.query(
+    sql,
+    [
+      founder_id,
+      title,
+      description,
+      category,
+      required_skills,
+      project_stage,
+      collaboration_type,
+      experience_level,
+      budget_min,
+      budget_max,
+      duration_weeks,
+      team_members_required,
+      upload_file,
+    ],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Insert Failed" });
+      }
 
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Insert Failed" });
-        }
-
-        res.json({ success: true });
-    });
+      res.json({ success: true });
+    },
+  );
 });
-app.post("/api/apply-project",(req,res)=>{
+app.post("/api/apply-project", (req, res) => {
+  const { project_id, freelancer_id, proposal_message, expected_salary } =
+    req.body;
 
-    const {
-        project_id,
-        freelancer_id,
-        proposal_message,
-        expected_salary
-    } = req.body;
+  console.log(req.body);
 
-    console.log(req.body);
-
-    const query = `
+  const query = `
     INSERT INTO applications
     (project_id, freelancer_id, proposal_message, expected_salary)
     VALUES (?,?,?,?)
     `;
 
-    db.query(
-        query,
-        [project_id, freelancer_id, proposal_message, expected_salary],
-        (err,result)=>{
+  db.query(
+    query,
+    [project_id, freelancer_id, proposal_message, expected_salary],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          message: "Error inserting application",
+        });
+      }
 
-        if(err){
-            console.log(err);
-            return res.status(500).json({
-                message:"Error inserting application"
-            })
-        }
-
-        res.json({
-            success:true,
-            message:"Application submitted successfully"
-        })
-
-    })
-})
+      res.json({
+        success: true,
+        message: "Application submitted successfully",
+      });
+    },
+  );
+});
 app.get("/api/Manage-Users", (req, res) => {
-    const query = `SELECT *FROM users`;
-    db.query(query, (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "An error occurred while fetching users. Please try again."
-            })
-        } else {
-            res.status(200).json({
-                message: "Users data fetched successfully!",
-                data: result
-            });
-        }
-    })
-
-})
+  const query = `SELECT *FROM users`;
+  db.query(query, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "An error occurred while fetching users. Please try again.",
+      });
+    } else {
+      res.status(200).json({
+        message: "Users data fetched successfully!",
+        data: result,
+      });
+    }
+  });
+});
 app.get("/api/userinfo/:id", (req, res) => {
-    const userId = req.params.id;
-    const query = `SELECT * FROM users WHERE user_id = ?`;
-    db.query(query, [userId], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "An error occurred while fetching user info. Please try again."
-            });
-        } else {
-            res.status(200).json({
-                message: "User info fetched successfully!",
-                data: result[0]
-            });
-        }
-    });
+  const userId = req.params.id;
+  const query = `SELECT * FROM users WHERE user_id = ?`;
+  db.query(query, [userId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message:
+          "An error occurred while fetching user info. Please try again.",
+      });
+    } else {
+      res.status(200).json({
+        message: "User info fetched successfully!",
+        data: result[0],
+      });
+    }
+  });
 });
 app.get("/api/admininfo/:id", (req, res) => {
-    const userId = req.params.id;
-    const query = `SELECT * FROM admin WHERE admin_id = ?`;
-    db.query(query, [userId], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "An error occurred while fetching user info. Please try again."
-            });
-        } else {
-            res.status(200).json({
-                message: "User info fetched successfully!",
-                data: result[0]
-            });
-        }
-    });
+  const userId = req.params.id;
+  const query = `SELECT * FROM admin WHERE admin_id = ?`;
+  db.query(query, [userId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message:
+          "An error occurred while fetching user info. Please try again.",
+      });
+    } else {
+      res.status(200).json({
+        message: "User info fetched successfully!",
+        data: result[0],
+      });
+    }
+  });
 });
 app.get("/api/myProject/:id", (req, res) => {
+  const founder_id = req.params.id;
 
-    const founder_id = req.params.id;
+  console.log("Founder ID:", founder_id);
 
-    console.log("Founder ID:", founder_id);
+  const query = "SELECT * FROM projects WHERE founder_id=?";
 
-    const query = "SELECT * FROM projects WHERE founder_id=?";
+  db.query(query, [founder_id], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Error fetching projects",
+      });
+    }
 
-    db.query(query, [founder_id], (err, result) => {
-
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "Error fetching projects"
-            });
-        }
-
-        res.json({
-            success: true,
-            data: result
-        });
+    res.json({
+      success: true,
+      data: result,
     });
+  });
 });
 
 app.get("/api/manage-project", (req, res) => {
+  const query = `SELECT * FROM projects`;
 
-    const query = `SELECT * FROM projects`;
-
-    db.query(query, (err, result) => {
-
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "An error occurred while fetching users. Please try again."
-            });
-        } else {
-            res.status(200).json({
-                message: "Project fetched successfully!",
-                data: result
-            });
-        }
-    });
+  db.query(query, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "An error occurred while fetching users. Please try again.",
+      });
+    } else {
+      res.status(200).json({
+        message: "Project fetched successfully!",
+        data: result,
+      });
+    }
+  });
 });
 app.get("/api/editproject/:id", (req, res) => {
+  const projectId = req.params.id;
 
-    const projectId = req.params.id;
+  const query = "SELECT * FROM projects WHERE project_id=?";
 
-    const query = "SELECT * FROM projects WHERE project_id=?";
+  db.query(query, [projectId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: "Error fetching project" });
+    }
 
-    db.query(query, [projectId], (err, result) => {
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Project not found" });
+    }
 
-        if (err) {
-            return res.status(500).json({ message: "Error fetching project" });
-        }
-
-        if (result.length === 0) {
-            return res.status(404).json({ message: "Project not found" });
-        }
-
-        res.json({
-            success: true,
-            data: result[0]
-        });
+    res.json({
+      success: true,
+      data: result[0],
     });
+  });
 });
 app.get("/api/projects", (req, res) => {
-
-    const query = `
+  const query = `
         SELECT projects.*, users.full_name AS founder_name
         FROM projects
         JOIN users ON projects.founder_id = users.user_id WHERE projects.status = 'active'
     `;
 
-    db.query(query, (err, result) => {
+  db.query(query, (err, result) => {
+    if (err) {
+      console.log(err);
 
-        if (err) {
-            console.log(err);
+      return res.status(500).json({
+        message: "Error during fetching data.",
+      });
+    }
 
-            return res.status(500).json({
-                message: "Error during fetching data."
-            });
-        }
-
-        res.json({
-            message: "Successfully data fetched.",
-            data: result
-        });
-
+    res.json({
+      message: "Successfully data fetched.",
+      data: result,
     });
-
+  });
 });
-app.get("/api/info-projects/:id",(req,res)=>{
-    const project_id = req.params.id;
-    console.log("Project_Id:",project_id);
-    const query = `SELECT * FROM projects WHERE project_id=?`
-    db.query(query,[project_id],(err,result)=>{
-        if(err){
-            console.log(err);
-            return res.status(500).json({message:"Error Occoure in fatching data"})
-        }
-        res.json({
-            success:true,
-            data:result[0]
-        })
-    })
-})
-app.get("/api/info-application/:id",(req,res)=>{
-      const founder_id = req.params.id;
-        console.log("founder_id:",founder_id);
-    
+app.get("/api/info-projects/:id", (req, res) => {
+  const project_id = req.params.id;
+  console.log("Project_Id:", project_id);
+  const query = `SELECT * FROM projects WHERE project_id=?`;
+  db.query(query, [project_id], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res
+        .status(500)
+        .json({ message: "Error Occoure in fatching data" });
+    }
+    res.json({
+      success: true,
+      data: result[0],
+    });
+  });
+});
+app.get("/api/info-application/:id", (req, res) => {
+  const founder_id = req.params.id;
+  console.log("founder_id:", founder_id);
+
   const query = `SELECT c.application_id, a.full_name,b.title,c.proposal_message,expected_salary,c.status 
   FROM users as a,projects as b,applications as c where a.user_id = c.freelancer_id  and
    b.project_id = c.project_id and b.founder_id=?`;
-    db.query(query, [founder_id], (err, result) => {
-
-        if (err) {
-            console.log(err);
-             return res.status(500).json({
-                message: "Error fetching applications"
-            });
-        }
-        res.json({
-            success: true,
-            data: result
-        });
+  db.query(query, [founder_id], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Error fetching applications",
+      });
+    }
+    res.json({
+      success: true,
+      data: result,
     });
-})
-app.get("/api/freelancer/myapplication/:id",(req,res)=>{
-    const id = req.params.id;
-    console.log("freelancer_id:",id)
+  });
+});
+app.get("/api/freelancer/myapplication/:id", (req, res) => {
+  const id = req.params.id;
+  console.log("freelancer_id:", id);
 
-    const query = `SELECT u.full_name, u.email as email, u.phone as phone, p.title, p.description, a.status FROM users as u,projects as p,applications as a 
+  const query = `SELECT u.full_name, u.email as email, u.phone as phone, p.title, p.description, a.status FROM users as u,projects as p,applications as a 
     WHERE u.user_id = p.founder_id AND p.project_id = a.project_id AND freelancer_id = ?`;
 
-    db.query(query,[id],(err,result)=>{
-        if(err){
-            console.log(err);
-            res.status(500).json({
-                message:"Error fatching data"
-            })
-        }
-        res.json({
-            success:true,
-            data:result
-        })
-    })
-})
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({
+        message: "Error fatching data",
+      });
+    }
+    res.json({
+      success: true,
+      data: result,
+    });
+  });
+});
 app.put("/api/block-user/:id", (req, res) => {
+  const userId = req.params.id;
 
-    const userId = req.params.id;
-
-    const query = `
+  const query = `
                     UPDATE users SET status = IF(status = 'active', 'blocked', 'active') WHERE user_id = ?;
 `;
 
-    db.query(query, [userId], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error updating user status" });
-        }
-        res.json({ message: "User status updated successfully" });
-    });
+  db.query(query, [userId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Error updating user status" });
+    }
+    res.json({ message: "User status updated successfully" });
+  });
 });
 app.put("/api/status-project/:id", (req, res) => {
+  const projectId = req.params.id;
 
-    const projectId = req.params.id;
-
-    const query = `
+  const query = `
                     UPDATE projects SET status = IF(status = 'active', 'closed', 'active') WHERE project_id = ?;   
 `;
 
-    db.query(query, [projectId], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error updating project status" });
-        }
-        res.json({ message: "Project status updated successfully" });
-    });
+  db.query(query, [projectId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Error updating project status" });
+    }
+    res.json({ message: "Project status updated successfully" });
+  });
 });
 
 app.put("/api/founder/edit-project/:id", (req, res) => {
+  const projectId = req.params.id;
 
-    const projectId = req.params.id;
+  const {
+    title,
+    description,
+    required_skills,
+    budget_min,
+    budget_max,
+    duration_weeks,
+    team_members_required,
+  } = req.body;
 
-    const {
-        title,
-        description,
-        required_skills,
-        budget_min,
-        budget_max,
-        duration_weeks,
-        team_members_required
-    } = req.body;
-
-    const query = `
+  const query = `
         UPDATE projects SET 
             title = ?,
             description = ?,
@@ -494,66 +491,73 @@ app.put("/api/founder/edit-project/:id", (req, res) => {
         WHERE project_id = ?
     `;
 
-    db.query(query, [
-        title,
-        description,
-        required_skills,
-        budget_min,
-        budget_max,
-        duration_weeks,
-        team_members_required,
-        projectId
-    ], (err) => {
+  db.query(
+    query,
+    [
+      title,
+      description,
+      required_skills,
+      budget_min,
+      budget_max,
+      duration_weeks,
+      team_members_required,
+      projectId,
+    ],
+    (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error updating project" });
+      }
 
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error updating project" });
-        }
-
-        res.json({ message: "Project updated successfully" });
-    });
+      res.json({ message: "Project updated successfully" });
+    },
+  );
 });
 
-
 app.put("/api/application/accept/:id", (req, res) => {
-    const applicationId = req.params.id;
-    console.log("Application ID:",applicationId);
-    const query = "UPDATE applications SET status = 'accepted' WHERE application_id = ?";
-    db.query(query, [applicationId], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error updating application status" });
-        }
-        res.json({ success: true, message: "Application accepted successfully" });
-    });
+  const applicationId = req.params.id;
+  console.log("Application ID:", applicationId);
+  const query =
+    "UPDATE applications SET status = 'accepted' WHERE application_id = ?";
+  db.query(query, [applicationId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res
+        .status(500)
+        .json({ message: "Error updating application status" });
+    }
+    res.json({ success: true, message: "Application accepted successfully" });
+  });
 });
 
 app.put("/api/application/reject/:id", (req, res) => {
-    const applicationId = req.params.id;
-    const query = "UPDATE applications SET status = 'rejected' WHERE application_id = ?";
-    db.query(query, [applicationId], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Error updating application status" });
-        }
-        res.json({ success: true, message: "Application rejected successfully" });
-    });
+  const applicationId = req.params.id;
+  const query =
+    "UPDATE applications SET status = 'rejected' WHERE application_id = ?";
+  db.query(query, [applicationId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res
+        .status(500)
+        .json({ message: "Error updating application status" });
+    }
+    res.json({ success: true, message: "Application rejected successfully" });
+  });
 });
 
+app.delete("/api/project/:id", (req, res) => {
+  const projectId = req.params.id;
+  const query = "DELETE FROM projects WHERE project_id=?";
 
-app.delete("/api/project/:id",(req,res)=>{
-    const projectId = req.params.id;
-    const query= "DELETE FROM projects WHERE project_id=?";
-
-    db.query(query,[projectId],(err)=>{
-        if(err){
-            console.log(err);
-            return res.status(500).json({ message : "delete failed"});
-        }
-        res.json({message:"Project deleted successfully"});
-    })
-})
+  db.query(query, [projectId], (err) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "delete failed" });
+    }
+    res.json({ message: "Project deleted successfully" });
+  });
+});
 const PORT = 1337;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
