@@ -1,3 +1,4 @@
+import '../../styles/FounderWorkspace.css';
 import React from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import TaskBoard from '../../components/workspace/TaskBoard';

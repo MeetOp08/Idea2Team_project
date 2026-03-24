@@ -1,3 +1,4 @@
+import '../../styles/DashboardLayout.css';
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';

@@ -1,3 +1,4 @@
+import '../../styles/DataTable.css';
 import React from 'react';
 
 const DataTable = ({ columns, data, renderRow }) => {

@@ -1,3 +1,4 @@
+import '../../styles/Sidebar.css';
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -86,7 +87,7 @@ const [role,setRole] = useState("founder");
 
 useEffect(()=>{
 
-const userId = localStorage.getItem("user_id");
+const userId = sessionStorage.getItem("user_id");
 
 axios.get(`http://localhost:1337/api/userinfo/${userId}`)
 .then(res=>{

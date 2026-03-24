@@ -1,6 +1,7 @@
+import '../../styles/FreelancerProfile.css';
 import React from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import Button from '../../components/common/Button';
+
 
 const FreelancerProfile = () => {
     return (
@@ -10,7 +11,7 @@ const FreelancerProfile = () => {
                     <h1>👩‍💻 My Profile</h1>
                     <p>Showcase your skills and attract the right projects.</p>
                 </div>
-                <Button variant="primary">Save Changes</Button>
+                <button className="btn btn-primary">Save Changes</button>
             </div>
 
             <div className="profile-page">
@@ -121,7 +122,7 @@ const FreelancerProfile = () => {
                                 </div>
                             ))}
                         </div>
-                        <Button variant="outline">+ Add Portfolio Item</Button>
+                        <button className="btn btn-outline">+ Add Portfolio Item</button>
                     </div>
                 </div>
             </div>

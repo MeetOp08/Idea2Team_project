@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Button from '../../components/common/Button';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import '../../styles/register.css';
 
 const Register = () => {
     function handleSubmit() {
@@ -33,21 +33,21 @@ const Register = () => {
         })
     }
     return (
-        <div className="auth-page">
-            <div className="auth-visual">
-                <div className="auth-visual-content">
+        <div className="register-page">
+            <div className="register-visual">
+                <div className="register-visual-content">
                     <h2>Join Idea2Team</h2>
                     <p>Create your account and start building or finding opportunities on the best freelancer platform.</p>
-                    <div className="auth-visual-graphic">💡</div>
+                    <div className="register-visual-graphic">💡</div>
                 </div>
             </div>
 
-            <div className="auth-form-container">
-                <div className="auth-form">
-                    <div className="auth-form-header">
-                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: 'var(--gray-900)', textDecoration: 'none' }}>
-                            <span style={{ width: '32px', height: '32px', background: 'var(--gradient-primary)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '800', fontSize: '14px' }}>I2</span>
-                            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: '700', fontSize: '18px' }}>Idea2Team</span>
+            <div className="register-form-container">
+                <div className="register-form">
+                    <div className="register-form-header">
+                        <Link to="/" className="register-header-link">
+                            <span className="register-header-logo-icon">I2</span>
+                            <span className="register-header-logo-text">Idea2Team</span>
                         </Link>
                         <h1>Create Account</h1>
                         <p>Choose your role and get started in minutes</p>
@@ -59,13 +59,13 @@ const Register = () => {
                             <input type="radio" name="role" value="founder" defaultChecked />
                             <div className="role-option-icon">🏢</div>
                             <div className="role-option-label">I'm a Founder</div>
-                            <p style={{ fontSize: '12px', color: 'var(--gray-500)', marginTop: '4px' }}>Post projects & hire talent</p>
+                            <p className="register-role-desc">Post projects & hire talent</p>
                         </label>
                         <label className="role-option">
                             <input type="radio" name="role" value="freelancer" />
                             <div className="role-option-icon">💻</div>
                             <div className="role-option-label">I'm a Freelancer</div>
-                            <p style={{ fontSize: '12px', color: 'var(--gray-500)', marginTop: '4px' }}>Find projects & earn money</p>
+                            <p className="register-role-desc">Find projects & earn money</p>
                         </label>
                     </div>
 
@@ -89,21 +89,21 @@ const Register = () => {
                         <label className="form-label">Phone Number</label>
                         <input id="phone" type="tel" className="form-input" placeholder="Enter your phone number" />
                     </div>
-                    <div style={{ marginBottom: '20px' }}>
-                        <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: 'var(--gray-600)', cursor: 'pointer' }}>
-                            <input type="checkbox" style={{ marginTop: '2px' }} />
-                            I agree to the <a href="#terms" style={{ color: 'var(--primary-600)' }}>Terms of Service</a> and <a href="#privacy" style={{ color: 'var(--primary-600)' }}>Privacy Policy</a>
+                    <div className="register-terms">
+                        <label className="register-terms-label">
+                            <input type="checkbox" className="register-terms-checkbox" />
+                            I agree to the <a href="#terms" className="register-terms-link">Terms of Service</a> and <a href="#privacy" className="register-terms-link">Privacy Policy</a>
                         </label>
                     </div>
-                    <Button variant="primary" size="lg" style={{ width: '100%' }} onClick={handleSubmit}>Create Account</Button>
+                    <button className="register-btn register-btn-primary" onClick={handleSubmit}>Create Account</button>
 
-                    <div className="auth-divider">or</div>
+                    <div className="register-divider">or</div>
 
-                    <Button variant="secondary" size="lg" style={{ width: '100%', marginBottom: '8px' }}>
+                    <button className="register-btn register-btn-secondary register-mb-8">
                         🔵 Sign up with Google
-                    </Button>
+                    </button>
 
-                    <p className="auth-footer">
+                    <p className="register-footer">
                         Already have an account? <Link to="/login">Sign in</Link>
                     </p>
                 </div>

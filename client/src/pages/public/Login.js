@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Button from '../../components/common/Button';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useState } from "react";
-
-
+import '../../styles/login.css';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -19,11 +17,11 @@ const Login = () => {
         }).then((res) => {
             Swal.fire("Success", "Login successful!", "success");
 
-            // Store user info in localStorage
+            // Store user info in sessionStorage
             if (res.data && res.data.user) {
-                localStorage.setItem("user_id", res.data.user.user_id);
-                localStorage.setItem("role", res.data.user.role);
-                localStorage.setItem("fullname", res.data.user.fullname);
+                sessionStorage.setItem("user_id", res.data.user.user_id);
+                sessionStorage.setItem("role", res.data.user.role);
+                sessionStorage.setItem("fullname", res.data.user.fullname);
             }
 
             // Redirect based on role
@@ -53,23 +51,22 @@ const Login = () => {
         });
     }
 
-
     return (
-        <div className="auth-page">
-            <div className="auth-visual">
-                <div className="auth-visual-content">
+        <div className="login-page">
+            <div className="login-visual">
+                <div className="login-visual-content">
                     <h2>Welcome Back!</h2>
                     <p>Sign in to access your dashboard, manage projects, and connect with your team.</p>
-                    <div className="auth-visual-graphic">🚀</div>
+                    <div className="login-visual-graphic">🚀</div>
                 </div>
             </div>
 
-            <div className="auth-form-container">
-                <div className="auth-form">
-                    <div className="auth-form-header">
-                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: 'var(--gray-900)', textDecoration: 'none' }}>
-                            <span style={{ width: '32px', height: '32px', background: 'var(--gradient-primary)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '800', fontSize: '14px' }}>I2</span>
-                            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: '700', fontSize: '18px' }}>Idea2Team</span>
+            <div className="login-form-container">
+                <div className="login-form">
+                    <div className="login-form-header">
+                        <Link to="/" className="login-header-link">
+                            <span className="login-header-logo-icon">I2</span>
+                            <span className="login-header-logo-text">Idea2Team</span>
                         </Link>
                         <h1>Sign In</h1>
                         <p>Enter your credentials to access your account</p>
@@ -93,41 +90,35 @@ const Login = () => {
 
                             <span
                                 onClick={() => setShowPassword(!showPassword)}
-                                style={{
-                                    position: "absolute",
-                                    right: "25px",
-                                    color: "blue",
-                                    marginTop: "8px",
-                                    cursor: "pointer",
-                                }}
+                                className="login-password-toggle"
                             >
                                 {showPassword ? "Hide" : "Show"}
                             </span>
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--gray-600)', cursor: 'pointer' }}>
+                    <div className="login-options">
+                        <label className="login-remember-me">
                             <input type="checkbox" /> Remember me
                         </label>
-                        <a href="#forgot" style={{ fontSize: '14px', color: 'var(--primary-600)', fontWeight: '600' }}>Forgot password?</a>
+                        <a href="#forgot" className="login-forgot-link">Forgot password?</a>
                     </div>
-                    <Button variant="primary" size="lg" style={{ width: '100%' }} onClick={handleLogin}>Sign In</Button>
+                    <button className="login-btn login-btn-primary" onClick={handleLogin}>Sign In</button>
 
-                    <div className="auth-divider">or</div>
+                    <div className="login-divider">or</div>
 
-                    <Button variant="secondary" size="lg" style={{ width: '100%', marginBottom: '8px' }}>
+                    <button className="login-btn login-btn-secondary login-mb-8">
                         🔵 Continue with Google
-                    </Button>
-                    <Button variant="secondary" size="lg" style={{ width: '100%' }}>
+                    </button>
+                    <button className="login-btn login-btn-secondary">
                         ⚫ Continue with GitHub
-                    </Button>
+                    </button>
 
-                    <p className="auth-footer">
+                    <p className="login-footer">
                         Don't have an account? <Link to="/register">Create one</Link>
                     </p>
-                    <p style={{ textAlign: 'center', marginTop: '12px', fontSize: '13px' }}>
-                        <a href="http://localhost:3001" style={{ color: 'var(--gray-400)', textDecoration: 'none' }}>Admin Login →</a>
+                    <p className="login-admin-link">
+                        <a href="http://localhost:3001">Admin Login →</a>
                     </p>
                 </div>
             </div>

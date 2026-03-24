@@ -1,3 +1,4 @@
+import '../../styles/FileUpload.css';
 import React from 'react';
 import { files } from '../../data/dummyData';
 

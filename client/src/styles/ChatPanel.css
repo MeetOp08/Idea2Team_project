@@ -1,0 +1,18 @@
+.project-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.form-input::placeholder {
+  color: var(--gray-400);
+}
+
+.search-bar input::placeholder {
+  color: var(--gray-400);
+}
+
+.form-card .form-input::placeholder {
+  color: var(--gray-400);
+  font-weight: var(--weight-normal);
+}

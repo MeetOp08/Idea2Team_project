@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
-import Button from '../../components/common/Button';
+
+import '../../styles/home.css';
 
 const features = [
     { icon: '🚀', title: 'Post Projects', desc: 'Founders can post detailed projects with budgets, timelines, and required skills to attract top talent.', bg: '#eef2ff', color: '#4f46e5' },
@@ -42,12 +43,12 @@ const Home = () => {
                         </p>
                         <div className="hero-actions">
                             <Link to="/register">
-                                <Button variant="primary" size="lg">Start Building — Free</Button>
+                                <button className="home-btn home-btn-primary">Start Building — Free</button>
                             </Link>
                             <Link to="/freelancer/browse">
-                                <Button variant="outline" size="lg" style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'white' }}>
+                                <button className="home-btn home-btn-outline">
                                     Browse Projects
-                                </Button>
+                                </button>
                             </Link>
                         </div>
                      
@@ -162,12 +163,12 @@ const Home = () => {
                 <p>Join thousands of founders and freelancers who are building the future together.</p>
                 <div className="cta-actions">
                     <Link to="/register">
-                        <Button variant="primary" size="lg">Get Started — It's Free</Button>
+                        <button className="home-btn home-btn-primary">Get Started — It's Free</button>
                     </Link>
                     <Link to="/login">
-                        <Button variant="outline" size="lg" style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'white' }}>
+                        <button className="home-btn home-btn-outline">
                             Sign In
-                        </Button>
+                        </button>
                     </Link>
                 </div>
             </section>

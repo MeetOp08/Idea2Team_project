@@ -1,11 +1,12 @@
+import '../../styles/Topbar.css';
 import React from 'react';
 import Dashboard from '../layout/DashboardLayout';
 import {Link} from "react-router-dom";
 
 const Topbar = ({ collapsed = false, onToggle }) => {
-    const role = localStorage.getItem("role");
+    const role = sessionStorage.getItem("role");
     const handleLogout=()=>{
-        localStorage.clear();
+        sessionStorage.clear();
         window.location.replace("/login");
     }
     return (

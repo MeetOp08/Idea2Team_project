@@ -34,7 +34,7 @@ const Sidebar = ({ role = "admin", collapsed = false, onToggle }) => {
 
     useEffect(() => {
 
-        const adminId = localStorage.getItem("admin_id");
+        const adminId = sessionStorage.getItem("admin_id");
 
         axios.get(`http://localhost:1337/api/admininfo/${adminId}`)
             .then(res => {

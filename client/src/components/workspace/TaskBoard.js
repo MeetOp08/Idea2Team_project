@@ -1,6 +1,7 @@
+import '../../styles/TaskBoard.css';
 import React from 'react';
 import { tasks } from '../../data/dummyData';
-import Button from '../common/Button';
+
 
 const TaskBoard = () => {
     const columns = [
@@ -13,7 +14,7 @@ const TaskBoard = () => {
         <div className="task-board">
             <div className="task-board-header">
                 <h3>📋 Task Board</h3>
-                <Button variant="primary" size="sm">+ Add Task</Button>
+                <button className="btn btn-primary btn-sm">+ Add Task</button>
             </div>
             <div className="task-columns">
                 {columns.map(col => (

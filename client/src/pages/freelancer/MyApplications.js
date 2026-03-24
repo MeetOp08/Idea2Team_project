@@ -1,68 +1,94 @@
-import React, { useState } from 'react';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import Avatar from '../../components/common/Avatar';
-import StatusBadge from '../../components/common/StatusBadge';
-import Button from '../../components/common/Button';
-import { applications } from '../../data/dummyData';
+// Cleaned up redundant CSS file Import
+import React, { useState, useEffect } from "react";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import axios from "axios";
+import Swal from "sweetalert2";
+import "../../styles/Myapplication.css";
 
 const MyApplications = () => {
-    const [activeFilter, setActiveFilter] = useState('All');
-    const filters = ['All', 'Under Review', 'Shortlisted', 'Accepted', 'Rejected'];
+  const [applications, setApplications] = useState([]);
+  const freelancer_id = sessionStorage.getItem("user_id");
 
-    // Filter applications based on active filter
-    const displayApps = activeFilter === 'All' ? applications : applications.filter(a => a.status === activeFilter);
+  useEffect(() => {
+    if (!freelancer_id) return;
 
-    return (
-        <DashboardLayout role="freelancer">
-            <div className="page-header">
-                <div>
-                    <h1>My Applications</h1>
-                    <p>Track all your project applications and their status.</p>
-                </div>
-            </div>
+    axios
+      .get(`http://localhost:1337/api/freelancer/myapplication/${freelancer_id}`)
+      .then((res) => {
+        setApplications(res.data.data || []);
+      })
+      .catch((err) => console.log(err));
+  }, [freelancer_id]);
 
-            <div className="filter-bar">
-                <div className="filter-chips">
-                    {filters.map(f => (
-                        <button
-                            key={f}
-                            className={`filter-chip ${activeFilter === f ? 'active' : ''}`}
-                            onClick={() => setActiveFilter(f)}
-                        >
-                            {f}
-                        </button>
-                    ))}
-                </div>
-            </div>
+  const handleView = (app) => {
+    Swal.fire({
+      title: app.title,
+      html: `
+        <div style="text-align: left; padding: 10px; font-size: 0.95em;">
+          <p style="margin-bottom: 8px;"><strong>Founder:</strong> ${app.full_name}</p>
+          <p style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:${app.email}" style="color: #4f46e5; text-decoration: none;">${app.email}</a></p>
+          <p style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:${app.phone}" style="color: #4f46e5; text-decoration: none;">${app.phone}</a></p>
+          <p style="margin-bottom: 15px;"><strong>Status:</strong> <span style="color: #10b981; font-weight: bold; text-transform: uppercase;">${app.status || 'Pending'}</span></p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;" />
+          <p style="margin-bottom: 8px;"><strong>Project Description:</strong></p>
+          <p style="font-size: 0.9em; color: #555; line-height: 1.5;">${app.description || "No description provided."}</p>
+        </div>
+      `,
+      icon: "info",
+      confirmButtonColor: "#4f46e5",
+    });
+  };
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {displayApps.map(app => (
-                    <div className="application-card" key={app.id}>
-                        <Avatar initials={app.freelancerInitials} color="#4f46e5" size="md" />
-                        <div className="application-info">
-                            <p className="application-title">{app.project}</p>
-                            <p className="application-project">Bid: {app.bid}</p>
-                            <p className="application-date">Applied on {app.date}</p>
-                        </div>
-                        <StatusBadge status={app.status} />
-                        <div className="application-actions">
-                            <Button variant="ghost" size="sm">Details</Button>
-                            {app.status === 'Accepted' && (
-                                <Button variant="primary" size="sm">Go to Workspace</Button>
-                            )}
-                        </div>
-                    </div>
+  return (
+    <DashboardLayout role="freelancer">
+      <div className="table-container">
+        <h2 className="table-title">My Applications</h2>
+
+        {applications.length === 0 ? (
+          <p className="table-empty">No applications found.</p>
+        ) : (
+          <div className="table-responsive">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Founder</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {applications.map((app, index) => (
+                  <tr key={index}>
+                    <td className="fw-bold text-dark">{app.title}</td>
+                    <td>{app.full_name}</td>
+                    <td>
+                      <div className="contact-info">
+                        <a href={`mailto:${app.email}`} className="contact-link">{app.email}</a>
+                        <span className="contact-separator">|</span>
+                        <a href={`tel:${app.phone}`} className="contact-link">{app.phone}</a>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`status-badge ${app.status?.toLowerCase() || 'pending'}`}>
+                        {app.status || 'Pending'}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="table-btn" onClick={() => handleView(app)}>
+                        View
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-            </div>
-
-            {displayApps.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--gray-400)' }}>
-                    <p style={{ fontSize: '48px', marginBottom: '12px' }}>📤</p>
-                    <p>No applications found for this filter.</p>
-                </div>
-            )}
-        </DashboardLayout>
-    );
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
+  );
 };
 
 export default MyApplications;

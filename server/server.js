@@ -1,12 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const mysql = require('mysql2');
-
+const path = require('path');
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/public", express.static("public"));
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -141,8 +143,16 @@ app.post("/api/forgot-password", (req, res) => {
         return res.json({ message: "Password reset link has been sent (simulated)." });
     });
 });
-
-app.post("/api/post-project", (req, res) => {
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public');    
+    },
+    filename:function(req,file,cb){
+        cb(null,Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+app.post("/api/post-project",upload.single('upload_file'), (req, res) => {
 
     const {
         founder_id,
@@ -158,13 +168,13 @@ app.post("/api/post-project", (req, res) => {
         duration_weeks,
         team_members_required
     } = req.body;
-
+    const upload_file = req.file ? req.file.filename : null;
     const sql = `
         INSERT INTO projects
         (founder_id,title,description,category,required_skills,
         project_stage,collaboration_type,experience_level,
-        budget_min,budget_max,duration_weeks,team_members_required)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+        budget_min,budget_max,duration_weeks,team_members_required,upload_file)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
     `;
 
     db.query(sql, [
@@ -180,6 +190,7 @@ app.post("/api/post-project", (req, res) => {
         budget_max,
         duration_weeks,
         team_members_required
+        ,upload_file
     ], (err, result) => {
 
         if (err) {
@@ -383,11 +394,13 @@ app.get("/api/info-projects/:id",(req,res)=>{
         })
     })
 })
-app.get("/api/info-application/:founder_id",(req,res)=>{
-      const founder_id = req.params.founderId;
-        console.log("founderId:",founder_id);
-    const query = `SELECT * FROM applications WHERE project_id=19`;
-
+app.get("/api/info-application/:id",(req,res)=>{
+      const founder_id = req.params.id;
+        console.log("founder_id:",founder_id);
+    
+  const query = `SELECT c.application_id, a.full_name,b.title,c.proposal_message,expected_salary,c.status 
+  FROM users as a,projects as b,applications as c where a.user_id = c.freelancer_id  and
+   b.project_id = c.project_id and b.founder_id=?`;
     db.query(query, [founder_id], (err, result) => {
 
         if (err) {
@@ -396,12 +409,31 @@ app.get("/api/info-application/:founder_id",(req,res)=>{
                 message: "Error fetching applications"
             });
         }
-
         res.json({
             success: true,
             data: result
         });
     });
+})
+app.get("/api/freelancer/myapplication/:id",(req,res)=>{
+    const id = req.params.id;
+    console.log("freelancer_id:",id)
+
+    const query = `SELECT u.full_name, u.email as email, u.phone as phone, p.title, p.description, a.status FROM users as u,projects as p,applications as a 
+    WHERE u.user_id = p.founder_id AND p.project_id = a.project_id AND freelancer_id = ?`;
+
+    db.query(query,[id],(err,result)=>{
+        if(err){
+            console.log(err);
+            res.status(500).json({
+                message:"Error fatching data"
+            })
+        }
+        res.json({
+            success:true,
+            data:result
+        })
+    })
 })
 app.put("/api/block-user/:id", (req, res) => {
 
@@ -482,6 +514,33 @@ app.put("/api/founder/edit-project/:id", (req, res) => {
     });
 });
 
+
+app.put("/api/application/accept/:id", (req, res) => {
+    const applicationId = req.params.id;
+    console.log("Application ID:",applicationId);
+    const query = "UPDATE applications SET status = 'accepted' WHERE application_id = ?";
+    db.query(query, [applicationId], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Error updating application status" });
+        }
+        res.json({ success: true, message: "Application accepted successfully" });
+    });
+});
+
+app.put("/api/application/reject/:id", (req, res) => {
+    const applicationId = req.params.id;
+    const query = "UPDATE applications SET status = 'rejected' WHERE application_id = ?";
+    db.query(query, [applicationId], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Error updating application status" });
+        }
+        res.json({ success: true, message: "Application rejected successfully" });
+    });
+});
+
+
 app.delete("/api/project/:id",(req,res)=>{
     const projectId = req.params.id;
     const query= "DELETE FROM projects WHERE project_id=?";
@@ -494,7 +553,6 @@ app.delete("/api/project/:id",(req,res)=>{
         res.json({message:"Project deleted successfully"});
     })
 })
-
 const PORT = 1337;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

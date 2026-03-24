@@ -1,3 +1,4 @@
+import '../../styles/Card.css';
 import React from 'react';
 
 const Card = ({ children, className = '', ...props }) => {

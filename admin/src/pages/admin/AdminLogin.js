@@ -20,8 +20,8 @@ const AdminLogin = () => {
             password
         }).then((res) => {
             if (res.data.message === "Admin Login Successful") {
-                localStorage.setItem("admin_id", res.data.admin_id || "1");
-                localStorage.setItem("role", "admin");
+                sessionStorage.setItem("admin_id", res.data.admin_id || "1");
+                sessionStorage.setItem("role", "admin");
                 Swal.fire("Success", "Welcome back, Admin!", "success").then(() => {
                     window.location.href = "/dashboard";
                 });

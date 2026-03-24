@@ -1,7 +1,8 @@
+import '../../styles/MyProjects.css';
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import SearchBar from '../../components/common/SearchBar';
-import Button from '../../components/common/Button';
+
 import axios from "axios";
 import "../../styles/myproject.css";
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +16,7 @@ const MyProjects = () => {
     // Load Projects
     useEffect(() => {
 
-        const userId = localStorage.getItem("user_id");
+        const userId = sessionStorage.getItem("user_id");
 
         axios.get(`http://localhost:1337/api/myProject/${userId}`)
             .then(res => setProjects(res.data.data))
@@ -63,12 +64,10 @@ const MyProjects = () => {
                     <p>Manage and track all your posted projects.</p>
                 </div>
 
-                <Button
-                    variant="primary"
-                    onClick={() => navigate('/founder/post-project')}
+                <button className="btn btn-primary" onClick={() => navigate('/founder/post-project')}
                 >
                     + New Project
-                </Button>
+                </button>
             </div>
 
             <div className="table-container">
@@ -84,7 +83,7 @@ const MyProjects = () => {
                     const isExpanded = expanded[val.project_id];
                     const description = isExpanded
                         ? val.description
-                        : val.description.slice(0,120) + "...";
+                        : val.description.slice(0, 120) + "...";
 
                     return (
 
@@ -115,7 +114,7 @@ const MyProjects = () => {
 
                             <div className="skills">
 
-                                {val.required_skills.split(",").map((skill,index)=>(
+                                {val.required_skills.split(",").map((skill, index) => (
                                     <span key={index} className="skill-tag">
                                         {skill}
                                     </span>
@@ -139,6 +138,16 @@ const MyProjects = () => {
                                 Status: <span className="status active">Active</span>
                             </div>
 
+                            <div className="uploadFile">
+                                File: {val.upload_file ? (
+                                    <a href={`http://localhost:1337/public/${val.upload_file}`} target="_blank" rel="noopener noreferrer">
+                                        {val.upload_file}
+                                    </a>
+                                ) : (
+                                    <span>No file uploaded</span>
+                                )}
+                            </div>
+                          
                             <div className="project-actions">
 
                                 <button

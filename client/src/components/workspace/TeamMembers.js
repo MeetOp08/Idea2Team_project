@@ -1,3 +1,4 @@
+import '../../styles/TeamMembers.css';
 import React from 'react';
 import { teamMembers } from '../../data/dummyData';
 

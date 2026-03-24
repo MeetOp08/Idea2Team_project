@@ -122,3 +122,8 @@
         font-size: 22px;
     }
 }
+/* Generated from Global/Components/Pages */
+.stats-card-icon.success {
+  background: var(--success-50);
+  color: var(--success-600);
+}

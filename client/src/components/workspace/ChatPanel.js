@@ -1,3 +1,4 @@
+import '../../styles/ChatPanel.css';
 import React from 'react';
 import { messages } from '../../data/dummyData';
 

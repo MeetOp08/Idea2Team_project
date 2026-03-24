@@ -1,3 +1,4 @@
+import '../../styles/Avatar.css';
 import React from 'react';
 
 const Avatar = ({ initials, color = '#4f46e5', size = 'md', className = '' }) => {

@@ -1,3 +1,4 @@
+import '../../styles/StatsCard.css';
 import React from 'react';
 
 const StatsCard = ({ icon, label, value, trend, trendDir = 'up', colorClass = 'primary' }) => {

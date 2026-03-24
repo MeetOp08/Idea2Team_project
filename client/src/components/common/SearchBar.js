@@ -1,3 +1,4 @@
+import '../../styles/SearchBar.css';
 import React from 'react';
 
 const SearchBar = ({ placeholder = 'Search...', className = '' }) => {

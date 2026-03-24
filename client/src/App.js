@@ -1,11 +1,13 @@
+import './styles/App.css';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Styles
-import './styles/global.css';
-import './styles/layout.css';
-import './styles/components.css';
-import './styles/pages.css';
+import './styles/variables.css';
+
+
+
+
 import './styles/workspace.css';
 
 // Public Pages

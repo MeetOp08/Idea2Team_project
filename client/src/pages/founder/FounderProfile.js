@@ -1,6 +1,7 @@
+import '../../styles/FounderProfile.css';
 import React from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import Button from '../../components/common/Button';
+
 
 const FounderProfile = () => {
     return (
@@ -10,7 +11,7 @@ const FounderProfile = () => {
                     <h1>🧑‍💼 My Profile</h1>
                     <p>Manage your personal and company information.</p>
                 </div>
-                <Button variant="primary">Save Changes</Button>
+                <button className="btn btn-primary">Save Changes</button>
             </div>
 
             <div className="profile-page">

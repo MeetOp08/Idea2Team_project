@@ -1,6 +1,7 @@
+import '../../styles/Navbar.css';
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Button from '../common/Button';
+
 
 const Navbar = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -25,10 +26,10 @@ const Navbar = () => {
 
                 <div className="navbar-actions">
                     <Link to="/login">
-                        <Button variant="ghost">Log In</Button>
+                        <button className="btn btn-ghost">Log In</button>
                     </Link>
                     <Link to="/register">
-                        <Button variant="primary">Get Started</Button>
+                        <button className="btn btn-primary">Get Started</button>
                     </Link>
                 </div>
 

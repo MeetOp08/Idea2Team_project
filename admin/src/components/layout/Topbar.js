@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "../../styles/Topbar.css";
 
 const Topbar = ({ collapsed = false }) => {
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
 
   return (
     <header className={`app-topbar ${collapsed ? "app-topbar-collapsed" : ""}`}>

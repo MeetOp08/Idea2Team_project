@@ -1,3 +1,4 @@
+import '../../styles/BrowseProjects.css';
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import SearchBar from '../../components/common/SearchBar';

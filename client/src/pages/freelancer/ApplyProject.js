@@ -3,7 +3,7 @@ import {useParams,useNavigate} from "react-router-dom";
 import axios from 'axios';
 import '../../styles/ApplyProject.css';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import Button from '../../components/common/Button';
+
 function ApplyProject(){
     const {id} = useParams();
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ const handleSubmit = () => {
     return;
   }
 
-  const freelancer_id = localStorage.getItem("user_id");
+  const freelancer_id = sessionStorage.getItem("user_id");
 
   const applicationData = {
     ...formData,
@@ -151,16 +151,13 @@ placeholder="Enter your price"
 
 <div className="apply-actions">
 
-<Button variant="secondary">
+<button className="btn btn-secondary">
 Cancel
-</Button>
+</button>
 
-<Button
-variant="primary"
-onClick={handleSubmit}
->
+<button className="btn btn-primary" onClick={handleSubmit}>
 Submit Application
-</Button>
+</button>
 
 </div>
 

@@ -1,3 +1,4 @@
+import '../../styles/StatusBadge.css';
 import React from 'react';
 
 const StatusBadge = ({ status, className = '' }) => {

@@ -1,0 +1,9 @@
+.stats-card-trend.up {
+  color: var(--success-600);
+}
+
+.project-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
