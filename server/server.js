@@ -557,6 +557,126 @@ app.delete("/api/project/:id", (req, res) => {
     res.json({ message: "Project deleted successfully" });
   });
 });
+
+// Profile Endpoints
+app.post("/api/profile", (req, res) => {
+  const {
+    user_id,
+    title,
+    location,
+    bio,
+    contact_info,
+    skills,
+    experience,
+    github,
+    linkedin,
+  } = req.body;
+
+  const query = `
+      INSERT INTO profiles (
+          user_id, title, location, bio, 
+          contact_info, skills, experience, 
+          github, linkedin
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+          title = VALUES(title),
+          location = VALUES(location),
+          bio = VALUES(bio),
+          contact_info = VALUES(contact_info),
+          skills = VALUES(skills),
+          experience = VALUES(experience),
+          github = VALUES(github),
+          linkedin = VALUES(linkedin)
+  `;
+
+  db.query(
+    query,
+    [
+      user_id,
+      title,
+      location,
+      bio,
+      contact_info,
+      skills,
+      experience,
+      github,
+      linkedin,
+    ],
+    (err) => {
+      if (err) {
+        console.error("SQL Error in Profile POST:", err);
+        return res.status(500).json({ message: "Error saving profile" });
+      }
+      res.json({ success: true, message: "Profile saved successfully" });
+    },
+  );
+});
+
+app.put("/api/profile/:user_id", (req, res) => {
+  const { user_id } = req.params;
+  const {
+    title,
+    location,
+    bio,
+    contact_info,
+    skills,
+    experience,
+    github,
+    linkedin,
+  } = req.body;
+
+  const query = `
+      UPDATE profiles
+      SET title = ?, location = ?, bio = ?, 
+          contact_info = ?, skills = ?, experience = ?, 
+          github = ?, linkedin = ?
+      WHERE user_id = ?`;
+
+  db.query(
+    query,
+    [
+      title,
+      location,
+      bio,
+      contact_info,
+      skills,
+      experience,
+      github,
+      linkedin,
+      user_id,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("SQL Error in Profile PUT:", err);
+        return res.status(500).json({ message: "Error updating profile" });
+      }
+      res
+        .status(200)
+        .json({ success: true, message: "Profile updated successfully" });
+    },
+  );
+});
+
+app.get("/api/profile/:user_id", (req, res) => {
+  const { user_id } = req.params;
+
+  const query = `
+      SELECT users.full_name, users.email, profiles.*
+      FROM users
+      LEFT JOIN profiles ON users.user_id = profiles.user_id
+      WHERE users.user_id = ?
+  `;
+
+  db.query(query, [user_id], (err, result) => {
+    if (err) {
+      console.error("SQL Error in Profile GET:", err);
+      return res.status(500).json({ message: "Error fetching profile" });
+    }
+    res.status(200).json(result[0] || {});
+  });
+});
+
 const PORT = 1337;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
