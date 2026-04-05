@@ -557,7 +557,7 @@ app.get("/api/freelancer/dashboard/:id", (req, res) => {
   const query = `SELECT 
                   (SELECT COUNT(*) FROM applications a JOIN projects p ON a.project_id = p.project_id WHERE freelancer_id=?) AS appliedProjects, 
                   (SELECT COUNT(*) FROM applications WHERE status="accepted" AND freelancer_id=?) AS acceptedProjects,
-                  (SELECT COUNT(*) FROM applications WHERE status="rejected" AND freelancer_id=?) AS rejetced,
+                  (SELECT COUNT(*) FROM applications WHERE status="rejected" AND freelancer_id=?) AS rejected,
                   (SELECT COUNT(*) FROM applications WHERE status="pending" AND freelancer_id=?) AS pending,
                   (SELECT COUNT(*) FROM applications a JOIN projects p ON a.project_id=p.project_id WHERE p.status="active" AND freelancer_id=?) AS activeProjects`;
 

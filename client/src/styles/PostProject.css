@@ -1,314 +1,418 @@
 /* =====================================================
-PAGE LAYOUT
+   GLOBAL SCOPE & VARIABLES
 ===================================================== */
+.PostProject-scope {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --secondary: #ec4899;
+  --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --input-border: #d1d5db;
+  --input-focus: #8b5cf6;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-primary: 'Inter', system-ui, sans-serif;
+  
+  font-family: var(--font-primary);
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
 
-.PostProject-scope .form-page {
-  padding: 30px;
-  display: flex;
-  justify-content: center;
+.PostProject-scope * {
+  box-sizing: border-box;
 }
 
 /* =====================================================
-CARD CONTAINER
+   PAGE HEADER
 ===================================================== */
-
-.PostProject-scope .form-card {
-  width: 100%;
-  max-width: 900px;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 28px;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-}
-
-/* =====================================================
-PAGE HEADER
-===================================================== */
-
 .PostProject-scope .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 40px;
+  text-align: center;
+  padding-top: 20px;
 }
 
 .PostProject-scope .page-header h1 {
-  font-size: 24px;
-  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f46e5, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.02em;
 }
 
 .PostProject-scope .page-header p {
-  font-size: 14px;
-  color: #666;
-  margin-top: 4px;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 500;
 }
 
 /* =====================================================
-POST PROJECT PAGE
+   LAYOUT & CONTAINER
 ===================================================== */
-
 .PostProject-scope .pp-container {
-  width: 100%;
   display: flex;
   justify-content: center;
-  padding: 30px;
+  padding: 0 20px 60px;
 }
-
-/* CARD */
 
 .PostProject-scope .pp-card {
   width: 100%;
-  max-width: 1000px;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
-  transition: 0.2s ease;
+  max-width: 900px;
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
 }
 
-.PostProject-scope .pp-card:hover {
-  transform: translateY(-2px);
+/* Decorative subtle glow effect inside card */
+.PostProject-scope .pp-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* SECTIONS */
-
+/* =====================================================
+   SECTIONS
+===================================================== */
 .PostProject-scope .pp-section {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.PostProject-scope .pp-section:last-of-type {
+  margin-bottom: 0;
 }
 
 .PostProject-scope .pp-section-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* GRID */
+.PostProject-scope .pp-section-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 20px 0;
+}
 
+/* =====================================================
+   GRIDS
+===================================================== */
 .PostProject-scope .pp-grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .PostProject-scope .pp-grid-3 {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-}
-
-/* FORM FIELD */
-
-.PostProject-scope .pp-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.PostProject-scope .pp-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-}
-
-/* INPUT */
-
-.PostProject-scope .pp-input {
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
-  background: #fafafa;
-  transition: 0.2s;
-}
-
-.PostProject-scope .pp-input:hover {
-  border-color: #a5b4fc;
-}
-
-.PostProject-scope .pp-input:focus {
-  outline: none;
-  border-color: #6366f1;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-/* TEXTAREA */
-
-.PostProject-scope .pp-textarea {
-  min-height: 90px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  resize: vertical;
-  font-size: 14px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 /* =====================================================
-FILE UPLOAD UI
+   FORM FIELDS
 ===================================================== */
-
-.PostProject-scope .file-upload-wrapper {
-  margin-top: 20px;
+.PostProject-scope .pp-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.PostProject-scope .upload-label {
-  width: fit-content;
-  padding: 10px 18px;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.2s;
+.PostProject-scope .pp-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
-.PostProject-scope .upload-label:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+.PostProject-scope .pp-input,
+.PostProject-scope .pp-textarea,
+.PostProject-scope .skills-input-wrapper {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  transition: var(--transition);
+  font-family: inherit;
 }
 
-.PostProject-scope .file-name {
-  font-size: 13px;
-  color: #555;
-  background: #f9fafb;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #eee;
-  max-width: 320px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+.PostProject-scope .pp-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Focus and Hover states */
+.PostProject-scope .pp-input:hover,
+.PostProject-scope .pp-textarea:hover,
+.PostProject-scope .skills-input-wrapper:hover {
+  border-color: #a78bfa;
+}
+
+.PostProject-scope .pp-input:focus,
+.PostProject-scope .pp-textarea:focus,
+.PostProject-scope .skills-input-wrapper:focus-within {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+  background: #ffffff;
+}
+
+.PostProject-scope .pp-input::placeholder,
+.PostProject-scope .pp-textarea::placeholder {
+  color: #9ca3af;
 }
 
 /* =====================================================
-ACTION BUTTONS
+   SKILLS TAGS INPUT
 ===================================================== */
+.PostProject-scope .skills-input-field {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  transition: var(--transition);
+  font-family: inherit;
+}
 
+.PostProject-scope .skills-input-field:hover {
+  border-color: #a78bfa;
+}
+
+.PostProject-scope .skills-input-field:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+  background: #ffffff;
+}
+
+.PostProject-scope .skills-input-field::placeholder {
+  color: #9ca3af;
+}
+
+.PostProject-scope .skills-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.PostProject-scope .skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f3ff;
+  color: #6366f1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1px solid #ede9fe;
+  transform: scale(1);
+  transition: var(--transition);
+  animation: scaleIn 0.2s ease-out;
+}
+
+.PostProject-scope .skill-tag:hover {
+  background: #ede9fe;
+  transform: translateY(-1px);
+}
+
+.PostProject-scope .remove-skill-btn {
+  background: #e0e7ff;
+  border: none;
+  color: #818cf8;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  transition: var(--transition);
+}
+
+.PostProject-scope .remove-skill-btn:hover {
+  background: #c7d2fe;
+  color: #4f46e5;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* =====================================================
+   FILE UPLOAD
+===================================================== */
+.PostProject-scope .upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+  border: 1px dashed var(--primary);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 10px;
+}
+
+.PostProject-scope .upload-label:hover {
+  background: rgba(99, 102, 241, 0.15);
+  box-shadow: var(--shadow-sm);
+}
+
+.PostProject-scope .Addfile {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.PostProject-scope .Addfile p {
+  margin: 4px 0 0 10px !important;
+  color: var(--text-main) !important;
+  font-weight: 500;
+}
+
+/* =====================================================
+   ACTIONS / BUTTONS
+===================================================== */
 .PostProject-scope .pp-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 25px;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--glass-border);
+  position: relative;
+  z-index: 1;
 }
-
-.PostProject-scope button {
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.PostProject-scope button:hover {
-  transform: translateY(-1px);
-  opacity: 0.95;
-}
-
-@media (max-width:900px) {
-  .PostProject-scope .pp-grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .PostProject-scope .pp-grid-3 {
-    grid-template-columns: 1fr;
-  }
-
-  .PostProject-scope .pp-card {
-    padding: 20px;
-  }
-}
-
-@media (max-width:768px) {
-  .PostProject-scope .form-page {
-    padding: 15px;
-  }
-
-  .PostProject-scope .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-}
-
-/* Generated from Global/Components/Pages */
 
 .PostProject-scope .btn {
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
   display: inline-flex;
-  height: 40px;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  text-decoration: none;
-  line-height: 1;
-}
-
-.PostProject-scope .btn-primary {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-}
-
-.PostProject-scope .btn-primary:hover {
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
-  transform: translateY(-1px);
 }
 
 .PostProject-scope .btn-secondary {
-  background: var(--gray-100);
-  color: var(--gray-700);
+  background: white;
+  color: var(--text-main);
+  border: 1px solid var(--input-border);
 }
 
 .PostProject-scope .btn-secondary:hover {
-  background: var(--gray-200);
+  background: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
-.PostProject-scope .stats-card-icon.success {
-  background: var(--success-50);
-  color: var(--success-600);
+.PostProject-scope .btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  box-shadow: var(--shadow-glow);
+  position: relative;
+  overflow: hidden;
 }
 
-.PostProject-scope .form-input::placeholder {
-  color: var(--gray-400);
+.PostProject-scope .btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: var(--transition);
 }
 
-.PostProject-scope .search-bar input::placeholder {
-  color: var(--gray-400);
+.PostProject-scope .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.5);
 }
 
-.PostProject-scope .page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-8);
+.PostProject-scope .btn-primary:hover::after {
+  left: 100%;
+  transition: 0.6s ease-in-out;
 }
 
-.PostProject-scope .page-header h1 {
-  font-size: var(--text-2xl);
-}
-
-.PostProject-scope .page-header p {
-  font-size: var(--text-sm);
-  color: var(--gray-500);
-  margin-top: var(--space-1);
-}
-
-.PostProject-scope .form-card .form-input::placeholder {
-  color: var(--gray-400);
-  font-weight: var(--weight-normal);
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+@media (max-width: 768px) {
+  .PostProject-scope .pp-grid-2,
+  .PostProject-scope .pp-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .PostProject-scope .pp-card {
+    padding: 24px;
+    border-radius: 12px;
+  }
+  
+  .PostProject-scope .page-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .PostProject-scope .pp-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .PostProject-scope .btn {
+    width: 100%;
+  }
 }

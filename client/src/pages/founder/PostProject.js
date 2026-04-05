@@ -10,6 +10,22 @@ import {useState} from "react";
 
 const PostProject = () => {
     const[fileName,setFile] = useState("");
+    const [skills, setSkills] = useState([]);
+    const [skillInput, setSkillInput] = useState("");
+
+    const handleAddSkill = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (skillInput.trim() && !skills.includes(skillInput.trim())) {
+                setSkills([...skills, skillInput.trim()]);
+            }
+            setSkillInput("");
+        }
+    };
+
+    const handleRemoveSkill = (skillToRemove) => {
+        setSkills(skills.filter(skill => skill !== skillToRemove));
+    };
 
 
     const handleFile = (e)=>{
@@ -44,7 +60,7 @@ const PostProject = () => {
     const title = document.querySelector("#title").value;
     const description = document.querySelector("#description").value;
     const category = document.querySelector("#category").value;
-    const required_skills = document.querySelector("#required_skills").value;
+    const required_skills = skills.join(", ");
     const project_stage = document.querySelector("#project_stage").value;
     const collaboration_type = document.querySelector("#collaboration_type").value;
     const experience_level = document.querySelector("#experience_level").value;
@@ -221,17 +237,39 @@ const PostProject = () => {
 
                     {/* SKILLS */}
 
-                    <div className="pp-section">
+                    <div className="pp-section pp-skills-section">
 
-                        <h3 className="pp-section-title">⚡ Skills</h3>
+                        <h3 className="pp-section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
+                            <span className="icon-box" style={{ 
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', 
+                                width: '32px', height: '32px', background: '#f4f5f8', borderRadius: '8px', fontSize: '14px' 
+                            }}>⚡</span> 
+                            Skills & Expertise
+                        </h3>
 
                         <div className="pp-field">
                             <input
-                                id="required_skills"
+                                id="required_skills_input"
                                 type="text"
-                                className="pp-input"
-                                placeholder="React, Node.js, MongoDB"
+                                className="pp-input skills-input-field"
+                                placeholder="Add a skill and press Enter..."
+                                value={skillInput}
+                                onChange={(e) => setSkillInput(e.target.value)}
+                                onKeyDown={handleAddSkill}
                             />
+                            
+                            {skills.length > 0 && (
+                                <div className="skills-tags-container">
+                                    {skills.map((skill, index) => (
+                                        <span key={index} className="skill-tag">
+                                            {skill}
+                                            <button type="button" className="remove-skill-btn" onClick={() => handleRemoveSkill(skill)}>
+                                                &times;
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                     </div>

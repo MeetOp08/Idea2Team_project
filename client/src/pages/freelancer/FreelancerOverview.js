@@ -65,7 +65,7 @@ const FreelancerOverview = () => {
           <div className="card red">
             <div className="icon">❌</div>
             <p className="card-title">Rejected</p>
-            <span className="card-value">{projects.rejetced}</span>
+            <span className="card-value">{projects.rejected}</span>
           </div>
 
           <div className="card yellow">
@@ -88,13 +88,13 @@ const FreelancerOverview = () => {
 
           <div className="quick-grid">
 
-            <div className="quick-card primary" onClick={() => navigate('/freelancer/browse')}>
+            <div className="quick-card" onClick={() => navigate('/freelancer/browse')}>
               <div className="q-icon">🔍</div>
               <h3>Browse Projects</h3>
               <p>Find new opportunities to apply</p>
             </div>
 
-            <div className="quick-card primary" onClick={() => navigate('/freelancer/applications')}>
+            <div className="quick-card" onClick={() => navigate('/freelancer/applications')}>
               <div className="q-icon">📨</div>
               <h3>My Applications</h3>
               <p>Track your application status</p>
