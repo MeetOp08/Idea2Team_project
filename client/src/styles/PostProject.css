@@ -38,23 +38,21 @@
   margin-bottom: 40px;
   text-align: center;
   padding-top: 20px;
+  align-items:center;
 }
 
 .PostProject-scope .page-header h1 {
-  font-size: 2.2rem;
+  font-size: 30px;
   font-weight: 800;
-  background: linear-gradient(135deg, #4f46e5, #ec4899);
-  -webkit-background-clip: text;
+  background:black;
   background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin: 0 0 10px 0;
   letter-spacing: -0.02em;
 }
 
 .PostProject-scope .page-header p {
   font-size: 1.1rem;
   color: var(--text-muted);
-  margin: 0;
+  margin-left: 30px;
   font-weight: 500;
 }
 

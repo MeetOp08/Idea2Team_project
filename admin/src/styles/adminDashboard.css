@@ -80,8 +80,9 @@ body {
 }
 
 .admin-stat-card {
-  background: linear-gradient(135deg, #6366f1, #818cf8);
-  color: white;
+  background:white;
+  color: black;
+  border: 1px solid #00000027;
   padding: 20px;
   border-radius: var(--radius);
   display: flex;

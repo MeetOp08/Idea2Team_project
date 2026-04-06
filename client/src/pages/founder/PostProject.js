@@ -119,10 +119,10 @@ const PostProject = () => {
         <DashboardLayout role="founder"     >
             <div className="PostProject-scope">
             <div className="page-header">
-                <div>
-                    <h1>🚀 Post a New Project</h1>
-                    <p>Create a detailed listing to attract the right freelancers.</p>
+                <div className="h1">
+                    <h1>Post a New Project</h1>
                 </div>
+                
             </div>
 
             <div className="pp-container">
