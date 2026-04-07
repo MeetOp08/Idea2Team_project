@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import DashboardLayout from '../../components/layout/DashboardLayout';  
+import DashboardLayout from '../../components/layout/DashboardLayout';
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useParams } from "react-router-dom";
 import '../../styles/FreelancerProfile.css';
 
 const FreelancerProfile = () => {
-    const user_id = sessionStorage.getItem("user_id");
+    const { id } = useParams();
+    const isPublicView = Boolean(id);
+    const user_id = id || sessionStorage.getItem("user_id") || JSON.parse(localStorage.getItem('user') || '{}').user_id;
     const [user, setUser] = useState({});
     const [profile, setProfile] = useState({
         title: "",
@@ -14,16 +17,18 @@ const FreelancerProfile = () => {
         contact_info: "",
         skills: "[]",
         experience: "",
-        portfolio: "[]",
         pricing: "",
         availability: "",
         github: "",
         linkedin: "",
-        image: ""
+        portfolio: "",
+        image: "",
+        resume:""
     });
 
     const [newSkill, setNewSkill] = useState("");
     const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedResume, setSelectedResume] = useState(null);
 
     useEffect(() => {
         if (user_id) {
@@ -37,10 +42,11 @@ const FreelancerProfile = () => {
                         setProfile({
                             ...res.data,
                             skills: res.data.skills || "[]",
-                            portfolio: res.data.portfolio || "[]",
                             github: res.data.github || "",
                             linkedin: res.data.linkedin || "",
-                            image: res.data.image || ""
+                            portfolio: res.data.portfolio || "",
+                            image: res.data.image || "",
+                            resume: res.data.resume || ""
                         });
                     }
                 })
@@ -56,19 +62,26 @@ const FreelancerProfile = () => {
     const handleSave = () => {
         const formData = new FormData();
         formData.append("user_id", user_id);
-        formData.append("title", profile.title);
-        formData.append("location", profile.location);
-        formData.append("bio", profile.bio);
-        formData.append("contact_info", profile.contact_info);
-        formData.append("skills", profile.skills);
-        formData.append("experience", profile.experience);
-        formData.append("github", profile.github);
-        formData.append("linkedin", profile.linkedin);
+        formData.append("title", profile.title || "");
+        formData.append("location", profile.location || "");
+        formData.append("bio", profile.bio || "");
+        formData.append("contact_info", profile.contact_info || "");
+        formData.append("skills", profile.skills || "[]");
+        formData.append("experience", profile.experience || "");
+        formData.append("github", profile.github || "");
+        formData.append("linkedin", profile.linkedin || "");
+        formData.append("portfolio", profile.portfolio || "");
 
         if (selectedFile) {
             formData.append("image", selectedFile);
         } else {
-            formData.append("image", profile.image);
+            formData.append("image", profile.image || "");
+        }
+
+        if (selectedResume) {
+            formData.append("resume", selectedResume);
+        } else {
+            formData.append("resume", profile.resume || "");
         }
 
         axios.post("http://localhost:1337/api/profile", formData, {
@@ -80,7 +93,6 @@ const FreelancerProfile = () => {
                 Swal.fire("Success", "Profile updated successfully!", "success");
             })
             .catch(err => {
-                console.error(err);
                 Swal.fire("Error", "Failed to update profile", "error");
             });
     };
@@ -101,7 +113,19 @@ const FreelancerProfile = () => {
         return `http://localhost:1337/public/${imagePath}`;
     };
 
-    const skillsList = JSON.parse(profile.skills || "[]");
+    let skillsList = [];
+    try {
+        if (typeof profile.skills === 'string') {
+            skillsList = JSON.parse(profile.skills || "[]");
+            if (!Array.isArray(skillsList)) skillsList = [];
+        } else if (Array.isArray(profile.skills)) {
+            skillsList = profile.skills;
+        }
+    } catch (e) {
+        if (typeof profile.skills === 'string') {
+            skillsList = profile.skills.split(',').map(s => s.trim()).filter(Boolean);
+        }
+    }
     const addSkill = (e) => {
         if (e.key === 'Enter' && newSkill.trim()) {
             const updatedSkills = [...skillsList, newSkill.trim()];
@@ -118,8 +142,8 @@ const FreelancerProfile = () => {
         <DashboardLayout role="freelancer">
             <div className="fp-page-header">
                 <div>
-                    <h1>👩‍💻 My Profile</h1>
-                    <p>Showcase your skills and attract the right projects.</p>
+                    <h1>{isPublicView ? "👩‍💻 Freelancer Profile" : "👩‍💻 My Profile"}</h1>
+                    <p>{isPublicView ? "Review this freelancer's skills and experience." : "Showcase your skills and attract the right projects."}</p>
                 </div>
             </div>
 
@@ -134,18 +158,22 @@ const FreelancerProfile = () => {
                                 ) : (
                                     user?.full_name ? user.full_name.substring(0, 2).toUpperCase() : "FP"
                                 )}
-                                <div className="fp-avatar-overlay">
-                                    <span className="fp-edit-icon">📷</span>
-                                </div>
+                                {!isPublicView && (
+                                    <div className="fp-avatar-overlay">
+                                        <span className="fp-edit-icon">📷</span>
+                                    </div>
+                                )}
                             </div>
                         </label>
-                        <input
-                            id="avatar-upload"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            style={{ display: 'none' }}
-                        />
+                        {!isPublicView && (
+                            <input
+                                id="avatar-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                style={{ display: 'none' }}
+                            />
+                        )}
                         <div className="fp-user-info">
                             <h2>{user?.full_name}</h2>
                             <p>{profile.title || "Professional Freelancer"}</p>
@@ -172,20 +200,20 @@ const FreelancerProfile = () => {
                         <div className="fp-form-grid">
                             <div className="fp-form-group">
                                 <label className="fp-form-label">Location</label>
-                                <input name="location" type="text" className="fp-form-input" value={profile.location} onChange={handleChange} placeholder="e.g. New York, NY" />
+                                <input name="location" type="text" className="fp-form-input" value={profile.location} onChange={handleChange} placeholder="e.g. New York, NY" readOnly={isPublicView} />
                             </div>
                             <div className="fp-form-group">
                                 <label className="fp-form-label">Contact/Phone</label>
-                                <input name="contact_info" type="text" className="fp-form-input" value={profile.contact_info} onChange={handleChange} placeholder="e.g. +1 234 567 890" />
+                                <input name="contact_info" type="text" className="fp-form-input" value={profile.contact_info} onChange={handleChange} placeholder="e.g. +1 234 567 890" readOnly={isPublicView} />
                             </div>
                         </div>
                         <div className="fp-form-group">
                             <label className="fp-form-label">Professional Title</label>
-                            <input name="title" type="text" className="fp-form-input" value={profile.title} onChange={handleChange} placeholder="e.g. Full-Stack Developer" />
+                            <input name="title" type="text" className="fp-form-input" value={profile.title} onChange={handleChange} placeholder="e.g. Full-Stack Developer" readOnly={isPublicView} />
                         </div>
                         <div className="fp-form-group">
                             <label className="fp-form-label">Bio</label>
-                            <textarea name="bio" className="fp-form-input fp-form-textarea" value={profile.bio} onChange={handleChange} placeholder="Tell us about yourself..." />
+                            <textarea name="bio" className="fp-form-input fp-form-textarea" value={profile.bio} onChange={handleChange} placeholder="Tell us about yourself..." readOnly={isPublicView} />
                         </div>
                     </div>
 
@@ -195,20 +223,22 @@ const FreelancerProfile = () => {
                             <h3 className="fp-form-section-title">Skills & Expertise</h3>
                         </div>
 
-                        <div className="fp-form-group">
-                            <input
-                                type="text"
-                                className="fp-form-input"
-                                placeholder="Add a skill and press Enter..."
-                                value={newSkill}
-                                onChange={(e) => setNewSkill(e.target.value)}
-                                onKeyPress={addSkill}
-                            />
-                        </div>
+                        {!isPublicView && (
+                            <div className="fp-form-group">
+                                <input
+                                    type="text"
+                                    className="fp-form-input"
+                                    placeholder="react,node,mongodb (comma separated)"
+                                    value={newSkill}
+                                    onChange={(e) => setNewSkill(e.target.value)}
+                                    onKeyPress={addSkill}
+                                />
+                            </div>
+                        )}
                         <div className="fp-skills-container">
                             {skillsList.map((s, i) => (
                                 <span key={i} className="fp-skill-tag">
-                                    {s} <span className="fp-skill-remove-btn" onClick={() => removeSkill(i)}>✕</span>
+                                    {s} {!isPublicView && <span className="fp-skill-remove-btn" onClick={() => removeSkill(i)}>✕</span>}
                                 </span>
                             ))}
                         </div>
@@ -222,28 +252,81 @@ const FreelancerProfile = () => {
                         <div className="fp-form-grid">
                             <div className="fp-form-group">
                                 <label className="fp-form-label">Experience (Years)</label>
-                                <input name="experience" type="text" className="fp-form-input" value={profile.experience} onChange={handleChange} placeholder="e.g. 5 years" />
+                                <input name="experience" type="text" className="fp-form-input" value={profile.experience} onChange={handleChange} placeholder="e.g. 5 years" readOnly={isPublicView} />
                             </div>
                         </div>
                         <div className="fp-form-grid">
                             <div className="fp-form-group">
-                                <label className="fp-form-label">GitHub URL</label>
-                                <input name="github" type="text" className="fp-form-input" value={profile.github} onChange={handleChange} placeholder="github.com/username" />
+                                <label className="fp-form-label">GitHub URL  {
+                                    profile.github && (
+                                        <a href={profile.github}
+                                            target="_blank"
+                                            rel ="nooper noreferrer">
+                                          🔗view 
+                                        </a>
+                                    )
+                                }</label>
+                                
+                                <input name="github" type="url" className="fp-form-input" value={profile.github} onChange={handleChange} placeholder="https://github.com/username" readOnly={isPublicView} />
                             </div>
+
+
                             <div className="fp-form-group">
-                                <label className="fp-form-label">LinkedIn URL</label>
-                                <input name="linkedin" type="text" className="fp-form-input" value={profile.linkedin} onChange={handleChange} placeholder="linkedin.com/in/username" />
+                                <label className="fp-form-label">LinkedIn URL {
+                                    profile.linkedin && (
+                                        <a href={profile.linkedin}
+                                            target="_blank"
+                                            rel ="nooper noreferrer">
+                                          🔗view 
+                                        </a>
+                                    )
+                                }</label>
+                                <input href={profile.linkedin} name="linkedin" type="url" className="fp-form-input" value={profile.linkedin} onChange={handleChange} placeholder="https://linkedin.com/in/username" readOnly={isPublicView} />
+                            </div>
+
+
+                            <div className="fp-form-group">
+                                <label className="fp-form-label">Portfolio URL {
+                                  
+                                    profile.portfolio && (
+                                        <a href={profile.portfolio}
+                                            target="_blank"
+                                            rel ="nooper noreferrer">
+                                          🔗view 
+                                        </a>
+                                    )}</label>
+                                <input name="portfolio" type="url" className="fp-form-input" value={profile.portfolio} onChange={handleChange} placeholder="https://yourportfolio.com" readOnly={isPublicView} />
+                            </div>
+
+                            <div className="fp-form-group">
+                                <label className="fp-form-label">{isPublicView ? "Resume" : "Add resume"} {
+                                    profile.resume && (
+                                        <a href={`http://localhost:1337/public/${profile.resume}`}
+                                            target="_blank"
+                                            rel="noreferrer">
+                                          🔗view 
+                                        </a>
+                                    )
+                                }</label>
+                                {!isPublicView ? (
+                                    <input name="resume" type="file" className="fp-form-input" onChange={(e) => setSelectedResume(e.target.files[0])} />
+                                ) : (
+                                    <input type="text" className="fp-form-input" value={profile.resume ? 'Resume Available' : 'No Resume Provided'} readOnly />
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    <div style={{ textAlign: "right", marginTop: "20px" }}>
-                        <button onClick={handleSave}>Save Profile Changes</button>
-                    </div>
+                    {!isPublicView && (
+                        <div style={{ textAlign: "right", marginTop: "20px" }}>
+                            <button onClick={handleSave}>Save Profile Changes</button>
+                        </div>
+                    )}
                 </div>
             </div>
         </DashboardLayout>
     );
 };
+
 
 export default FreelancerProfile;

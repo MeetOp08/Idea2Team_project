@@ -15,6 +15,7 @@ items:[
 {icon:"📝",text:"Post Project",path:"/founder/post-project"},
 {icon:"📁",text:"My Projects",path:"/founder/projects"},
 {icon:"📨",text:"Applications",path:"/founder/applications"},
+{icon:"✉️",text:"Invitations",path:"/founder/invitations"},
 ],
 },
 {
@@ -38,7 +39,9 @@ sections:[
 label:"Main",
 items:[
 {icon:"📊",text:"Overview",path:"/freelancer/dashboard"},
+{icon:"✨",text:"Smart Suggestions",path:"/freelancer/suggestions"},
 {icon:"🔍",text:"Browse Projects",path:"/freelancer/browse"},
+{icon:"✉️",text:"Invitations",path:"/freelancer/invitations"},
 {icon:"📤",text:"My Applications",path:"/freelancer/applications"},
 ],
 },

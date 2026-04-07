@@ -148,6 +148,13 @@ const MyProjects = () => {
                             <div className="project-actions">
 
                                 <button
+                                    onClick={() => navigate(`/founder/smart-matching/${val.project_id}`)}
+                                    style={{ backgroundColor: '#6366f1', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                                >
+                                    ✨ Smart Match
+                                </button>
+
+                                <button
                                     className="edit-btn"
                                     onClick={() => handleEdit(val.project_id)}
                                 >

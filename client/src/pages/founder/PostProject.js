@@ -53,14 +53,23 @@ const PostProject = () => {
 
         setFile(file.name);
     };
-
+function cleanSkills(skills) {
+  return skills
+    .toLowerCase()
+    .replace(/\.js/g, "")
+    .replace(/\s+/g, "")
+    .split(",")
+    .map(s => s.trim())
+    .join(",");
+}
     function handlePublish() {
 
     const founder_id = sessionStorage.getItem("user_id");
     const title = document.querySelector("#title").value;
     const description = document.querySelector("#description").value;
     const category = document.querySelector("#category").value;
-    const required_skills = skills.join(", ");
+    const rawSkills = document.querySelector("#required_skills").value;
+    const required_skills = cleanSkills(rawSkills);
     const project_stage = document.querySelector("#project_stage").value;
     const collaboration_type = document.querySelector("#collaboration_type").value;
     const experience_level = document.querySelector("#experience_level").value;
@@ -252,7 +261,7 @@ const PostProject = () => {
                                 id="required_skills_input"
                                 type="text"
                                 className="pp-input skills-input-field"
-                                placeholder="Add a skill and press Enter..."
+                                placeholder="react,node,mongodb (comma separated)"
                                 value={skillInput}
                                 onChange={(e) => setSkillInput(e.target.value)}
                                 onKeyDown={handleAddSkill}

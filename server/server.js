@@ -10,6 +10,18 @@ app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use("/public", express.static("public"));
+// ================== UTILS ==================
+
+function cleanSkills(skills) {
+  return skills
+    .toLowerCase()
+    .replace(/\.js/g, "")
+    .replace(/\s+/g, "")
+    .replace(/\[|\]|"/g, "")
+    .split(",")
+    .map((s) => s.trim())
+    .join(",");
+}
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -56,10 +68,10 @@ app.post("/api/admin-login", (req, res) => {
 });
 
 app.post("/api/register", (req, res) => {
-  const { full_name, email, password, phone, role } = req.body;
+  const { full_name, email, password, role, phone } = req.body;
 
   // Validate required fields
-  if (!full_name || !email || !password || !phone || !role) {
+  if (!full_name || !email || !password || !role || !phone) {
     return res
       .status(400)
       .json({ message: "Please provide all required fields" });
@@ -76,10 +88,10 @@ app.post("/api/register", (req, res) => {
     }
 
     const insertQuery =
-      "INSERT INTO users (full_name, email, password, phone, role, status) VALUES (?, ?, ?, ?, ?, 'active')";
+      "INSERT INTO users ( full_name, email, password,role , phone, status) VALUES (?, ?, ?, ?, ?, 'active')";
     db.query(
       insertQuery,
-      [full_name, email, password, phone, role],
+      [full_name, email, password, role, phone],
       (err, result) => {
         if (err) {
           console.error(err);
@@ -246,23 +258,62 @@ app.post("/api/apply-project", (req, res) => {
     },
   );
 });
+
+// Skill normalization helper
+const cleanSkillString = (skillsStr) => {
+  if (!skillsStr) return "";
+  let processedStr = skillsStr;
+  
+  // If it's a JSON array string like '["react","node"]', parse it safely
+  try {
+      if (processedStr.trim().startsWith('[') && processedStr.trim().endsWith(']')) {
+          const parsed = JSON.parse(processedStr);
+          if (Array.isArray(parsed)) {
+              processedStr = parsed.join(',');
+          }
+      }
+  } catch (e) {
+      // Ignored, proceed as normal comma separated string
+  }
+
+  return processedStr
+    .toLowerCase()
+    .replace(/\.js/g, "")
+    .replace(/\s+/g, "")
+    .split(',')
+    .filter(s => s.length > 0)
+    .join(',');
+};
+
 // 23-03-2026 enter, update, and edit profile data 
-app.post("/api/profile", upload.single("image"), (req, res) => {
+app.post("/api/profile", upload.any(), (req, res) => {
   const {
     user_id, title, location, bio,
-    contact_info, skills, experience,
-    github, linkedin
+    contact_info, experience,
+    github, linkedin, portfolio
   } = req.body;
 
-  const image = req.file ? req.file.filename : req.body.image;
+  let skills = req.body.skills || "";
+  skills = cleanSkillString(skills); // enforce strictly lowercase, no .js, no space
+
+  let image = req.body.image || "";
+  let resume = req.body.resume || "";
+
+  if (req.files && req.files.length > 0) {
+    const imgFile = req.files.find(f => f.fieldname === 'image');
+    if (imgFile) image = imgFile.filename;
+
+    const resFile = req.files.find(f => f.fieldname === 'resume');
+    if (resFile) resume = resFile.filename;
+  }
 
   const query = `
         INSERT INTO profiles (
             user_id, title, location, bio, 
             contact_info, skills, experience, 
-            github, linkedin, image
+            github, linkedin, portfolio, image, resume
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
             title = VALUES(title),
             location = VALUES(location),
@@ -272,13 +323,15 @@ app.post("/api/profile", upload.single("image"), (req, res) => {
             experience = VALUES(experience),
             github = VALUES(github),
             linkedin = VALUES(linkedin),
-            image = VALUES(image)
+            portfolio = VALUES(portfolio),
+            image = VALUES(image),
+            resume = VALUES(resume)
     `;
 
   db.query(query, [
     user_id, title, location, bio,
     contact_info, skills, experience,
-    github, linkedin, image
+    github, linkedin, portfolio, image, resume
   ], (err) => {
     if (err) {
       console.error("SQL Error in Profile POST:", err);
@@ -287,26 +340,27 @@ app.post("/api/profile", upload.single("image"), (req, res) => {
     res.json({ success: true, message: "Profile saved successfully" });
   });
 });
+// Removed buggy duplicate GET /api/profile/:user_id
 
 app.put("/api/profile/:user_id", (req, res) => {
   const { user_id } = req.params;
   const {
     title, location, bio,
     contact_info, skills, experience,
-    github, linkedin, image
+    github, linkedin, portfolio, image, resume
   } = req.body;
 
   const query = `
         UPDATE profiles
         SET title = ?, location = ?, bio = ?, 
             contact_info = ?, skills = ?, experience = ?, 
-            github = ?, linkedin = ?, image = ?
+            github = ?, linkedin = ?, portfolio = ?, image = ? ,resume = ?
         WHERE user_id = ?`;
 
   db.query(query, [
     title, location, bio,
     contact_info, skills, experience,
-    github, linkedin, image,
+    github, linkedin, portfolio, image, resume,
     user_id
   ], (err, result) => {
     if (err) {
@@ -657,7 +711,7 @@ app.get("/api/freelancer/dashboard/recent-project/:id", (req, res) => {
 app.put("/api/block-user/:id", (req, res) => {
   const userId = req.params.id;
 
-  const query = ` UPDATE users SET status = IF(status = 'active', 'blocked', 'active') WHERE user_id = ?;`;
+  const query = ` UPDATE users SET status = IF(status = 'active', 'closed', 'active') WHERE user_id = ?;`;
 
   db.query(query, [userId], (err, result) => {
     if (err) {
@@ -838,8 +892,337 @@ app.get("/api/founder-profile/:user_id", (req, res) => {
     res.status(200).json(result[0] || {});
   });
 });
+// ================== SMART MATCHING & INVITES ==================
+
+app.get("/api/match/:project_id", (req, res) => {
+  const projectId = req.params.project_id;
+
+  // 1. Get project details
+  const projectQuery = "SELECT required_skills, experience_level FROM projects WHERE project_id = ?";
+
+  db.query(projectQuery, [projectId], (err, projectResult) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Error fetching project" });
+    }
+
+    if (projectResult.length === 0) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const { required_skills, experience_level } = projectResult[0];
+    const projectSkillsStr = cleanSkillString(required_skills || "");
+    const projectSkills = projectSkillsStr.length > 0 ? projectSkillsStr.split(',') : [];
+
+    // 2. Get all active freelancers
+    const freelancerQuery = `
+      SELECT p.user_id, p.skills, p.experience, p.title, p.image, u.full_name
+      FROM profiles p 
+      JOIN users u ON p.user_id = u.user_id 
+      WHERE u.role = 'freelancer' AND u.status = 'active'
+    `;
+
+    db.query(freelancerQuery, (err, freelancers) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error fetching freelancers" });
+      }
+
+      // 3. Match logic
+      const results = freelancers.map((f) => {
+        const fSkillsStr = cleanSkillString(f.skills || "");
+        const fSkills = fSkillsStr.length > 0 ? fSkillsStr.split(',') : [];
+        
+        // original formatting for display if needed, but the algorithm needs clean ones
+        // The prompt says "store as: react,node,html", so we will just use the clean strings for both 
+        // display and logic since it's cleaner.
+        
+        let matched = [];
+        let missing = [];
+
+        projectSkills.forEach(reqSkill => {
+            if (fSkills.includes(reqSkill)) {
+                matched.push(reqSkill);
+            } else {
+                missing.push(reqSkill);
+            }
+        });
+
+        // Skills Score
+        const skillScore = projectSkills.length > 0 
+            ? (matched.length / projectSkills.length) * 100 
+            : 0;
+            
+        // Experience Score
+        let expScore = 0;
+        const expLower = (f.experience || "").toLowerCase();
+        
+        if (expLower.includes('expert') || expLower.includes('senior') || expLower.includes('advanced')) {
+            expScore = 100;
+        } else if (expLower.includes('intermediate') || expLower.includes('mid')) {
+            expScore = 70;
+        } else if (expLower.includes('beginner') || expLower.includes('junior') || expLower.includes('entry')) {
+            expScore = 40;
+        } else if (expLower.length > 0) {
+            // Default middle ground if they wrote something else
+            expScore = 50; 
+        }
+
+        // Final Score (70% Skill, 30% Experience)
+        let finalScore = 0;
+        if (matched.length > 0) {
+            finalScore = Math.round((skillScore * 0.7) + (expScore * 0.3));
+        }
+
+        return {
+          user_id: f.user_id,
+          full_name: f.full_name,
+          title: f.title,
+          image: f.image,
+          score: finalScore,
+          matchedSkills: matched,
+          missingSkills: missing,
+          experience: f.experience
+        };
+      });
+
+      // 4. Sort by best match (highest score first) and DO NOT filter out low skill matches, but exclude 0 scores
+      const sortedFreelancers = results
+        .filter(f => f.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+      res.json({
+        success: true,
+        data: sortedFreelancers
+      });
+    });
+  });
+});
+
+app.post("/api/invite", (req, res) => {
+    const { project_id, freelancer_id, founder_id } = req.body;
+
+    if (!project_id || !freelancer_id || !founder_id) {
+        return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const query = `
+        INSERT INTO invitations (project_id, freelancer_id, founder_id, status) 
+        VALUES (?, ?, ?, 'pending')
+    `;
+
+    db.query(query, [project_id, freelancer_id, founder_id], (err, result) => {
+        if (err) {
+            // Check for duplicate entry error (ER_DUP_ENTRY)
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ message: "Freelancer already invited to this project" });
+            }
+            console.log(err);
+            return res.status(500).json({ message: "Error sending invitation" });
+        }
+        res.status(201).json({ success: true, message: "Invitation sent successfully" });
+    });
+});
+
+app.get("/api/founder/invitations/:founder_id", (req, res) => {
+    const { founder_id } = req.params;
+    
+    const query = `
+        SELECT i.id, i.project_id, i.status, i.created_at, p.title as project_title, u.full_name as freelancer_name 
+        FROM invitations i
+        JOIN projects p ON i.project_id = p.project_id
+        JOIN users u ON i.freelancer_id = u.user_id
+        WHERE i.founder_id = ?
+        ORDER BY i.created_at DESC
+    `;
+
+    db.query(query, [founder_id], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Error fetching founder invitations" });
+        }
+        res.json({ success: true, data: results });
+    });
+});
+
+app.get("/api/invitations/:freelancer_id", (req, res) => {
+    const { freelancer_id } = req.params;
+    
+    const query = `
+        SELECT i.id, i.project_id, i.status, i.created_at, p.title as project_title, u.full_name as founder_name
+        FROM invitations i
+        JOIN projects p ON i.project_id = p.project_id
+        JOIN users u ON i.founder_id = u.user_id
+        WHERE i.freelancer_id = ?
+        ORDER BY i.created_at DESC
+    `;
+    
+    db.query(query, [freelancer_id], (err, results) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Error fetching invitations" });
+        }
+        res.json({ success: true, data: results });
+    });
+});
+
+app.put("/api/invitations/:id/:action", (req, res) => {
+    const { id, action } = req.params;
+    
+    // Only allow 'accept' or 'reject'
+    if (!['accept', 'reject'].includes(action)) {
+        return res.status(400).json({ message: "Invalid action" });
+    }
+    
+    // Map URL action to DB enum status
+    const newStatus = action === 'accept' ? 'accepted' : 'rejected';
+    
+    const query = `UPDATE invitations SET status = ? WHERE id = ?`;
+    
+    db.query(query, [newStatus, id], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Error updating invitation" });
+        }
+        res.json({ success: true, message: `Invitation ${newStatus}` });
+    });
+});
+
+// Freelancer Smart Suggestions
+app.get("/api/recommended-projects/:freelancer_id", (req, res) => {
+    const { freelancer_id } = req.params;
+
+    // 1. Get freelancer skills and experience
+    const profileQuery = "SELECT skills, experience FROM profiles WHERE user_id = ?";
+
+    db.query(profileQuery, [freelancer_id], (err, profileResult) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Error fetching profile" });
+        }
+
+        if (profileResult.length === 0) {
+            return res.status(404).json({ message: "Profile not found" });
+        }
+
+        const fProfile = profileResult[0];
+        const fSkillsStr = cleanSkillString(fProfile.skills || "");
+        const fSkills = fSkillsStr.length > 0 ? fSkillsStr.split(',') : [];
+            
+        // Setup freelancer experience score
+        let expScore = 0;
+        const expLower = (fProfile.experience || "").toLowerCase();
+        
+        if (expLower.includes('expert') || expLower.includes('senior') || expLower.includes('advanced')) {
+            expScore = 100;
+        } else if (expLower.includes('intermediate') || expLower.includes('mid')) {
+            expScore = 70;
+        } else if (expLower.includes('beginner') || expLower.includes('junior') || expLower.includes('entry')) {
+            expScore = 40;
+        } else if (expLower.length > 0) {
+            expScore = 50; 
+        }
+
+        // 2. Get past projects applied by freelancer
+        const pastProjectsQuery = `
+            SELECT p.required_skills 
+            FROM applications a
+            JOIN projects p ON a.project_id = p.project_id
+            WHERE a.freelancer_id = ?
+        `;
+
+        db.query(pastProjectsQuery, [freelancer_id], (err, pastProjectsResult) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: "Error fetching past projects" });
+            }
+
+            // Extract all skills from past projects
+            let pastSkillsSet = new Set();
+            pastProjectsResult.forEach(row => {
+                const pSkillsStr = cleanSkillString(row.required_skills || "");
+                if (pSkillsStr) {
+                    pSkillsStr.split(',').forEach(s => pastSkillsSet.add(s));
+                }
+            });
+            const pastSkills = Array.from(pastSkillsSet);
+
+            // 3. Get active projects
+            const projectsQuery = `
+                SELECT project_id, title, required_skills, experience_level, budget_min, budget_max 
+                FROM projects 
+                WHERE status = 'active'
+            `;
+
+            db.query(projectsQuery, (err, projects) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ message: "Error fetching projects" });
+                }
+
+                // 4. Match logic
+                const recommended = projects.map(p => {
+                    const projectSkillsStr = cleanSkillString(p.required_skills || "");
+                    const reqSkills = projectSkillsStr.length > 0 ? projectSkillsStr.split(',') : [];
+                    
+                    let matched = [];
+                    let missing = [];
+                    let pastMatchedCount = 0;
+
+                    reqSkills.forEach(reqSkill => {
+                        if (fSkills.includes(reqSkill)) {
+                            matched.push(reqSkill);
+                        } else {
+                            missing.push(reqSkill);
+                        }
+
+                        // Analyze if this skill is in their past projects history
+                        if (pastSkills.includes(reqSkill)) {
+                            pastMatchedCount++;
+                        }
+                    });
+
+                const skillScore = reqSkills.length > 0
+                    ? (matched.length / reqSkills.length) * 100
+                    : 0;
+                    
+                const pastProjectScore = reqSkills.length > 0
+                    ? (pastMatchedCount / reqSkills.length) * 100
+                    : 0;
+                    
+                // Add weight: skills = 70%, experience = 20%, past projects = 10%
+                const finalScore = matched.length > 0 
+                    ? Math.round((skillScore * 0.70) + (expScore * 0.20) + (pastProjectScore * 0.10)) 
+                    : 0;
+
+                return {
+                    project_id: p.project_id,
+                    title: p.title,
+                    score: finalScore,
+                    matchedSkills: matched,
+                    missingSkills: missing,
+                    required_skills: reqSkills,
+                    budget: `${p.budget_min || 0} - ${p.budget_max || 0}`,
+                    experience_level: p.experience_level
+                };
+            });
+
+        // Filter and return...
+                const topProjects = recommended
+                    .filter(p => p.score > 0)
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 5); // return top 5 projects 
+
+                res.json({ success: true, data: topProjects });
+            });
+        });
+    });
+});
+
 
 const PORT = 1337;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+

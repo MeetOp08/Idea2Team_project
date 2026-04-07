@@ -23,6 +23,8 @@ import Applications from './pages/founder/Applications';
 import FounderWorkspace from './pages/founder/FounderWorkspace';
 import FounderProfile from './pages/founder/FounderProfile';
 import EditProject from './pages/founder/EditProject';
+import SmartMatching from './pages/founder/SmartMatching';
+import FounderInvitations from './pages/founder/Invitations';
 
 // Freelancer Pages
 import FreelancerOverview from './pages/freelancer/FreelancerOverview';
@@ -31,6 +33,8 @@ import MyApplications from './pages/freelancer/MyApplications';
 import FreelancerWorkspace from './pages/freelancer/FreelancerWorkspace';
 import FreelancerProfile from './pages/freelancer/FreelancerProfile';
 import ApplyProject from './pages/freelancer/ApplyProject';
+import SmartSuggestions from './pages/freelancer/SmartSuggestions';
+import Invitations from './pages/freelancer/Invitations';
 
 function App() {
   return (
@@ -49,12 +53,18 @@ function App() {
         <Route path="/founder/workspace" element={<FounderWorkspace />} />
         <Route path="/founder/profile" element={<FounderProfile />} />
         <Route path="/founder/edit-project/:id" element={<EditProject />} />
+        <Route path="/founder/smart-matching/:id" element={<SmartMatching/>}/>
+        <Route path="/founder/invitations" element={<FounderInvitations/>} />
+
         {/* Freelancer */}
         <Route path="/freelancer/dashboard" element={<FreelancerOverview />} />
         <Route path="/freelancer/browse" element={<BrowseProjects />} />
         <Route path="/freelancer/applications" element={<MyApplications />} />
         <Route path="/freelancer/workspace" element={<FreelancerWorkspace />} />
         <Route path="/freelancer/profile" element={<FreelancerProfile />} />
+        <Route path="/freelancer/profile/:id" element={<FreelancerProfile />} />
+        <Route path="/freelancer/suggestions" element={<SmartSuggestions />} />
+        <Route path="/freelancer/invitations" element={<Invitations />} />
         <Route path="/apply-project/:id" element={<ApplyProject />} />
       </Routes>
     </Router>

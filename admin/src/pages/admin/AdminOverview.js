@@ -10,7 +10,6 @@ const AdminOverview = () => {
         totalUsers: 0,
         totalProjects: 0,
         activeProjects: 0,
-        totalApplications: 0,
         totalFreelancers: 0,
         totalFounders: 0,
         blockedUsers: 0
@@ -53,7 +52,6 @@ const AdminOverview = () => {
     const statCards = [
         { title: "Total Users", value: stats.totalUsers, icon: "👥", color: "#4f46e5" },
         { title: "Active Projects", value: stats.activeProjects, icon: "🚀", color: "#10b981" },
-        { title: "Applications", value: stats.totalApplications, icon: "📄", color: "#8b5cf6" },
         { title: "Blocked", value: stats.blockedUsers, icon: "🚫", color: "#ef4444" }
     ];
 

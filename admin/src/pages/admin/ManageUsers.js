@@ -46,7 +46,6 @@ const handleBlock = (id) => {
                     <h1>Manage Users</h1>
                     <p>View and manage all registered users on the platform.</p>
                 </div>
-                <Button variant="primary">+ Add User</Button>
             </div>
 
             <div className="filter-bar">

@@ -1,0 +1,276 @@
+/* ================= ROOT ================= */
+:root {
+  --primary: #6366f1;
+  --primary-light: #818cf8;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --bg: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --text: #0f172a;
+  --muted: #64748b;
+}
+
+/* ================= PAGE ================= */
+.inv-page {
+  padding: 30px;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+/* ================= HEADER ================= */
+.inv-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inv-header p {
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+/* ================= CARD ================= */
+.inv-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.inv-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+/* ================= INFO ================= */
+.inv-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inv-info p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.inv-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ================= ACTIONS ================= */
+.inv-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+/* ================= BUTTON ================= */
+/* ================= BUTTON BASE ================= */
+.btn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ================= ACCEPT ================= */
+.btn.accept {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+
+.btn.accept:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 22px rgba(34,197,94,0.5);
+}
+
+/* ================= REJECT ================= */
+.btn.reject {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+}
+
+.btn.reject:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 22px rgba(239,68,68,0.5);
+}
+
+/* ================= VIEW ================= */
+.btn.outline {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+
+.btn.outline:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 22px rgba(99,102,241,0.5);
+}
+
+/* ================= CLICK EFFECT ================= */
+.btn:active {
+  transform: scale(0.95);
+}
+
+/* ================= DISABLED ================= */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+  top: 0;
+  left: -100%;
+  transition: 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+/* Accept */
+.accept {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.accept:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+}
+
+/* Reject */
+.reject {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.reject:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(239,68,68,0.4);
+}
+
+/* Outline */
+.outline {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+
+.outline:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ================= STATUS ================= */
+.inv-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Accepted */
+.inv-status.accepted {
+  background: rgba(34,197,94,0.1);
+  color: #15803d;
+}
+
+/* Rejected */
+.inv-status.rejected {
+  background: rgba(239,68,68,0.1);
+  color: #b91c1c;
+}
+
+/* Pending */
+.inv-status.pending {
+  background: rgba(250,204,21,0.2);
+  color: #92400e;
+}
+
+/* ================= LIST ================= */
+.inv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* ================= LOADING ================= */
+.inv-loading {
+  text-align: center;
+  margin-top: 60px;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= EMPTY ================= */
+.inv-empty {
+  text-align: center;
+  margin-top: 70px;
+  color: var(--muted);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .inv-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .inv-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

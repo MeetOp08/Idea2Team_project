@@ -123,6 +123,39 @@
   font-weight: 500;
 }
 
+.fp-social-links {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.fp-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fp-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.fp-social-link:hover {
+  background: var(--fp-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+.fp-social-icon {
+  font-size: 1.1rem;
+}
+
 /* FORM SECTIONS */
 .fp-form-card {
   background: var(--fp-card);
