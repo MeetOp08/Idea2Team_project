@@ -4,14 +4,23 @@ import TaskBoard from './TaskBoard';
 import ChatBox from './ChatBox';
 import TeamMembers from './TeamMembers';
 import FileVault from './FileVault';
-import '../../styles/workspace.css'; // Add our enhanced CSS
+import '../../styles/workspace.css';
+
+const TABS = [
+    { id: 'tasks',   label: 'Tasks',   icon: '⚡' },
+    { id: 'chat',    label: 'Chat',    icon: '💬' },
+    { id: 'members', label: 'Team',    icon: '👥' },
+    { id: 'vault',   label: 'Vault',   icon: '🗄️' },
+];
 
 const WorkspaceApp = ({ role }) => {
     const userId = sessionStorage.getItem('user_id');
-    const [workspaces, setWorkspaces] = useState([]);
+    const [workspaces, setWorkspaces]           = useState([]);
     const [selectedWorkspace, setSelectedWorkspace] = useState(null);
-    const [activeTab, setActiveTab] = useState('tasks');
+    const [activeTab, setActiveTab]             = useState('tasks');
+    const [taskCount, setTaskCount]             = useState(null);
 
+    /* ── fetch workspace list ── */
     useEffect(() => {
         if (!userId) return;
         const fetchWorkspaces = async () => {
@@ -19,51 +28,79 @@ const WorkspaceApp = ({ role }) => {
                 if (role === 'founder') {
                     const projsRes = await axios.get(`http://localhost:1337/api/myProject/${userId}`);
                     const projs = projsRes.data.data || [];
-                    let allWorkspaces = [];
+                    let all = [];
                     for (let p of projs) {
                         const wRes = await axios.get(`http://localhost:1337/api/project/workspaces/${p.project_id}`);
                         const ws = wRes.data.data;
                         if (ws.length > 0) {
-                            allWorkspaces.push({ ...ws[0], project_title: p.title });
+                            all.push({ ...ws[0], project_title: p.title });
                         }
                     }
-                    setWorkspaces(allWorkspaces);
+                    setWorkspaces(all);
                 } else {
                     const res = await axios.get(`http://localhost:1337/api/freelancer/workspaces/${userId}`);
                     setWorkspaces(res.data.data || []);
                 }
             } catch (err) {
-                console.error("Error fetching workspaces", err);
+                console.error('Error fetching workspaces', err);
             }
         };
         fetchWorkspaces();
     }, [userId, role]);
 
+    /* ── task badge count ── */
+    useEffect(() => {
+        if (!selectedWorkspace) { setTaskCount(null); return; }
+        axios.get(`http://localhost:1337/api/tasks/${selectedWorkspace.workspace_id}`)
+            .then(r => setTaskCount((r.data.data || []).length))
+            .catch(() => {});
+    }, [selectedWorkspace]);
+
+    /* ─────── Empty State ─────── */
     if (!workspaces.length) {
         return (
-            <div className="empty-workspace-state">
-                <div className="empty-state-content">
-                    <span className="empty-state-icon">✨</span>
-                    <h2>No active workspaces</h2>
-                    <p>{role === 'founder' ? 'Accept freelancers to automatically construct new collaborative environments.' : 'When you get hired, your collaborative workspaces will automatically appear here.'}</p>
+            <div className="ws-empty-state">
+                <div className="ws-empty-card">
+                    <span className="ws-empty-icon">🚀</span>
+                    <h2>No Active Workspaces</h2>
+                    <p>
+                        {role === 'founder'
+                            ? 'Accept freelancers to automatically spin up collaborative workspaces.'
+                            : 'Once you are hired for a project, your workspace will appear here.'}
+                    </p>
                 </div>
             </div>
         );
     }
 
+    /* ─────── Project Selector ─────── */
     if (!selectedWorkspace) {
         return (
-            <div className="workspace-selector-container">
-                <h2 className="workspace-selector-title">Select a Workspace</h2>
-                <div className="workspace-cards-grid">
+            <div className="ws-selector-wrap">
+                <div className="ws-selector-header">
+                    <h1>Your Workspaces</h1>
+                    <p>{workspaces.length} active project{workspaces.length !== 1 ? 's' : ''}</p>
+                </div>
+
+                <div className="ws-project-grid">
                     {workspaces.map(w => (
-                        <div key={w.workspace_id} className="workspace-glass-card" onClick={() => setSelectedWorkspace(w)}>
-                            <div className="workspace-glass-content">
-                                <h3>{w.project_title || w.name}</h3>
-                                <p className="workspace-desc">{w.name}</p>
-                                <span className="workspace-date">Created {new Date(w.created_at).toLocaleDateString()}</span>
+                        <div
+                            key={w.workspace_id}
+                            className="ws-project-card"
+                            onClick={() => setSelectedWorkspace(w)}
+                        >
+                            <div className="ws-project-badge">Active</div>
+
+                            <h3>{w.project_title || w.name}</h3>
+                            <p>{w.name}</p>
+
+                            <div className="ws-project-meta">
+                                <span>Created {new Date(w.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                <button className="ws-enter-btn" onClick={() => setSelectedWorkspace(w)}>
+                                    Open
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                </button>
                             </div>
-                            <div className="workspace-glass-glow"></div>
                         </div>
                     ))}
                 </div>
@@ -71,44 +108,56 @@ const WorkspaceApp = ({ role }) => {
         );
     }
 
+    /* ─────── Workspace Shell ─────── */
     return (
-        <div className="workspace-orchestrator">
-            <aside className="workspace-glass-sidebar">
-                <div className="sidebar-header">
-                    <h3>{selectedWorkspace.project_title}</h3>
-                    <p>{selectedWorkspace.name}</p>
+        <div className="ws-shell">
+
+            {/* Top Chrome / Tab Bar */}
+            <div className="ws-chrome">
+                {/* Project pill */}
+                <div className="ws-project-pill">
+                    <div className="ws-project-dot" />
+                    <div className="ws-project-label">
+                        <strong title={selectedWorkspace.project_title || selectedWorkspace.name}>
+                            {selectedWorkspace.project_title || selectedWorkspace.name}
+                        </strong>
+                        <span>{role === 'founder' ? 'Founder' : 'Collaborator'}</span>
+                    </div>
                 </div>
 
-                <nav className="sidebar-nav">
-                    <button className={`nav-glass-btn ${activeTab === 'tasks' ? 'active' : ''}`} onClick={() => setActiveTab('tasks')}>
-                        <span className="nav-icon">📋</span> Task Process
-                    </button>
-                    <button className={`nav-glass-btn ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>
-                        <span className="nav-icon">💬</span> Team Chat
-                    </button>
-                    <button className={`nav-glass-btn ${activeTab === 'members' ? 'active' : ''}`} onClick={() => setActiveTab('members')}>
-                        <span className="nav-icon">✨</span> Team Members
-                    </button>
-                    <button className={`nav-glass-btn ${activeTab === 'vault' ? 'active' : ''}`} onClick={() => setActiveTab('vault')}>
-                        <span className="nav-icon">📁</span> Project Vault
-                    </button>
-                </nav>
+                {/* Tabs */}
+                <div className="ws-tabs">
+                    {TABS.map(tab => (
+                        <button
+                            key={tab.id}
+                            className={`ws-tab ${activeTab === tab.id ? 'active' : ''}`}
+                            onClick={() => setActiveTab(tab.id)}
+                        >
+                            <span className="ws-tab-icon">{tab.icon}</span>
+                            {tab.label}
+                            {tab.id === 'tasks' && taskCount !== null && taskCount > 0 && (
+                                <span className="ws-tab-badge">{taskCount}</span>
+                            )}
+                        </button>
+                    ))}
+                </div>
 
-                <div className="sidebar-footer">
-                    <button className="back-btn" onClick={() => setSelectedWorkspace(null)}>
-                        ← Back to List
+                {/* Actions */}
+                <div className="ws-chrome-actions">
+                    <button className="ws-back-btn" onClick={() => setSelectedWorkspace(null)}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        All Projects
                     </button>
                 </div>
-            </aside>
-            
-            <main className="workspace-glass-main">
-                <div className="workspace-glass-canvas">
-                    {activeTab === 'tasks' && <TaskBoard workspaceId={selectedWorkspace.workspace_id} role={role} userId={userId} />}
-                    {activeTab === 'chat' && <ChatBox workspaceId={selectedWorkspace.workspace_id} userId={userId} />}
-                    {activeTab === 'members' && <TeamMembers workspaceId={selectedWorkspace.workspace_id} role={role} />}
-                    {activeTab === 'vault' && <FileVault workspaceId={selectedWorkspace.workspace_id} userId={userId} />}
-                </div>
-            </main>
+            </div>
+
+            {/* Main Canvas */}
+            <div className="ws-canvas" key={activeTab}>
+                {activeTab === 'tasks'   && <TaskBoard   workspaceId={selectedWorkspace.workspace_id} role={role} userId={userId} />}
+                {activeTab === 'chat'    && <ChatBox     workspaceId={selectedWorkspace.workspace_id} userId={userId} />}
+                {activeTab === 'members' && <TeamMembers workspaceId={selectedWorkspace.workspace_id} role={role} />}
+                {activeTab === 'vault'   && <FileVault   workspaceId={selectedWorkspace.workspace_id} userId={userId} />}
+            </div>
         </div>
     );
 };

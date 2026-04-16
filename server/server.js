@@ -176,6 +176,60 @@ app.post("/api/login", (req, res) => {
     });
   });
 });
+// OAuth Login/Register Handler
+app.post("/api/oauth", (req, res) => {
+  const { email, full_name, role, provider } = req.body;
+
+  if (!email || !full_name) {
+    return res.status(400).json({ message: "Invalid OAuth data from " + provider });
+  }
+
+  const query = "SELECT * FROM users WHERE email=?";
+  db.query(query, [email], (err, result) => {
+    if (err) return res.status(500).json({ message: "Server error" });
+
+    if (result.length > 0) {
+      // User exists, log them in
+      const user = result[0];
+      if (user.status === "blocked") {
+        return res.status(403).json({ message: "Your account is blocked" });
+      }
+      return res.json({
+        success: true,
+        isNew: false,
+        user: {
+          user_id: user.user_id,
+          fullname: user.full_name,
+          email: user.email,
+          role: user.role,
+        },
+      });
+    } else {
+      // User does not exist, register them!
+      const userRole = role || 'freelancer'; // default to freelancer if not specified
+      const insertQuery = "INSERT INTO users (full_name, email, password, role, phone, status) VALUES (?, ?, ?, ?, ?, 'active')";
+      // We use a dummy password and phone for OAuth users
+      const dummyPassword = "OAUTH_" + Math.random().toString(36).slice(-8);
+      
+      db.query(insertQuery, [full_name, email, dummyPassword, userRole, "0000000000"], (err, insertResult) => {
+        if (err) return res.status(500).json({ message: "Error auto-registering user" });
+        
+        // Return logged in user
+        return res.json({
+          success: true,
+          isNew: true,
+          user: {
+            user_id: insertResult.insertId,
+            fullname: full_name,
+            email: email,
+            role: userRole,
+          },
+        });
+      });
+    }
+  });
+});
+
 // Forgot Password Endpoint
 app.post("/api/forgot-password", (req, res) => {
   const { email } = req.body;

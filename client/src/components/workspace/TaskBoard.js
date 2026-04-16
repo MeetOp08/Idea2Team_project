@@ -3,38 +3,31 @@ import axios from 'axios';
 import '../../styles/workspace.css';
 
 const TaskBoard = ({ workspaceId, role, userId }) => {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showTaskForm, setShowTaskForm] = useState(false);
-  const [members, setMembers] = useState([]);
-  const [newTask, setNewTask] = useState({ title: '', description: '', assignee_id: '', due_date: '' });
+  const [tasks, setTasks]           = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [showForm, setShowForm]     = useState(false);
+  const [members, setMembers]       = useState([]);
+  const [newTask, setNewTask]       = useState({ title: '', description: '', assignee_id: '', due_date: '' });
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`http://localhost:1337/api/tasks/${workspaceId}`);
-      setTasks(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching tasks", error);
-    } finally {
-      setLoading(false);
-    }
+      const r = await axios.get(`http://localhost:1337/api/tasks/${workspaceId}`);
+      setTasks(r.data.data || []);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
   const fetchMembers = async () => {
     try {
-      const response = await axios.get(`http://localhost:1337/api/workspace/members/${workspaceId}`);
-      setMembers(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching members", error);
-    }
+      const r = await axios.get(`http://localhost:1337/api/workspace/members/${workspaceId}`);
+      setMembers(r.data.data || []);
+    } catch (e) { console.error(e); }
   };
 
   useEffect(() => {
     if (workspaceId) {
       fetchTasks();
-      if (role === 'founder') {
-        fetchMembers();
-      }
+      if (role === 'founder') fetchMembers();
     }
   }, [workspaceId, role]);
 
@@ -42,188 +35,166 @@ const TaskBoard = ({ workspaceId, role, userId }) => {
     try {
       await axios.put('http://localhost:1337/api/tasks/update-status', { task_id: taskId, status: newStatus });
       setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
-    } catch (error) {
-      console.error("Error updating task status", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  const handleCreateTask = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:1337/api/tasks/create', { ...newTask, workspace_id: workspaceId });
-      setShowTaskForm(false);
+      setShowForm(false);
       setNewTask({ title: '', description: '', assignee_id: '', due_date: '' });
       fetchTasks();
-    } catch (error) {
-      console.error("Error creating task", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  if (loading) return <div className="p-4" style={{ color: 'var(--gray-500)' }}>Syncing tasks...</div>;
+  if (loading) return (
+    <div className="ws-loading">
+      <div className="ws-spinner" />
+      Syncing tasks…
+    </div>
+  );
 
-  const statuses = ['todo', 'inProgress', 'done'];
+  const COLS = [
+    { key: 'todo',       label: 'To Do',       dot: 'todo' },
+    { key: 'inProgress', label: 'In Progress',  dot: 'inProgress' },
+    { key: 'done',       label: 'Done',         dot: 'done' },
+  ];
 
   return (
-    <div className="task-board-canvas" style={{ width: '100%', animation: 'fadeIn 0.5s ease-out' }}>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--gray-900)' }}>Task Process</h2>
+    <div>
+      {/* Section Header */}
+      <div className="ws-section-header">
+        <div>
+          <div className="ws-section-title">Task Board</div>
+          <div className="ws-section-subtitle">{tasks.length} task{tasks.length !== 1 ? 's' : ''} in this workspace</div>
+        </div>
         {role === 'founder' && (
-          <button 
-            onClick={() => setShowTaskForm(!showTaskForm)}
-            style={{
-                background: showTaskForm ? 'var(--gray-800)' : 'var(--gradient-primary)',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: 'var(--radius-full)',
-                fontWeight: 600,
-                boxShadow: 'var(--shadow-md)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-            }}
+          <button
+            className={`ws-btn ${showForm ? 'ws-btn-ghost' : 'ws-btn-primary'}`}
+            onClick={() => setShowForm(!showForm)}
           >
-            {showTaskForm ? 'Cancel' : '+ New Task'}
+            {showForm ? '✕ Cancel' : '＋ New Task'}
           </button>
         )}
       </div>
 
-      {showTaskForm && role === 'founder' && (
-        <form onSubmit={handleCreateTask} style={{
-            background: 'white',
-            padding: '24px',
-            borderRadius: 'var(--radius-xl)',
-            boxShadow: 'var(--shadow-lg)',
-            marginBottom: '24px',
-            border: '1px solid var(--gray-200)'
-        }}>
-          <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--gray-800)' }}>Create New Task</h4>
-          <div className="row">
-              <div className="col-md-6 mb-3">
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--gray-600)', marginBottom: '8px' }}>Task Title</label>
-                <input type="text" className="form-control" style={{ borderRadius: '8px', border: '1px solid var(--gray-300)', padding: '10px' }} required value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})} />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--gray-600)', marginBottom: '8px' }}>Assign To</label>
-                <select className="form-control" style={{ borderRadius: '8px', border: '1px solid var(--gray-300)', padding: '10px' }} required value={newTask.assignee_id} onChange={e => setNewTask({...newTask, assignee_id: e.target.value})}>
-                  <option value="">Select Member...</option>
-                  {members.map(m => (
-                    <option key={m.user_id} value={m.user_id}>{m.full_name} ({m.role})</option>
-                  ))}
-                </select>
-              </div>
+      {/* Create Task Form */}
+      {showForm && role === 'founder' && (
+        <form className="ws-form-card" onSubmit={handleCreate}>
+          <h4>Create New Task</h4>
+          <div className="ws-form-grid">
+            <div className="ws-form-group">
+              <label>Task Title</label>
+              <input
+                type="text"
+                placeholder="e.g. Build login page"
+                required
+                value={newTask.title}
+                onChange={e => setNewTask({ ...newTask, title: e.target.value })}
+              />
+            </div>
+            <div className="ws-form-group">
+              <label>Assign To</label>
+              <select
+                required
+                value={newTask.assignee_id}
+                onChange={e => setNewTask({ ...newTask, assignee_id: e.target.value })}
+              >
+                <option value="">Select member…</option>
+                {members.map(m => (
+                  <option key={m.user_id} value={m.user_id}>{m.full_name} ({m.role})</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="mb-3">
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--gray-600)', marginBottom: '8px' }}>Description</label>
-            <textarea className="form-control" rows="3" style={{ borderRadius: '8px', border: '1px solid var(--gray-300)', padding: '10px' }} required value={newTask.description} onChange={e => setNewTask({...newTask, description: e.target.value})} />
+
+          <div className="ws-form-group" style={{ marginBottom: 16 }}>
+            <label>Description</label>
+            <textarea
+              rows="3"
+              placeholder="Describe the task in detail…"
+              required
+              value={newTask.description}
+              onChange={e => setNewTask({ ...newTask, description: e.target.value })}
+            />
           </div>
-          <div className="mb-4">
-             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--gray-600)', marginBottom: '8px' }}>Deadline</label>
-             <input type="date" className="form-control" style={{ maxWidth: '200px', borderRadius: '8px', border: '1px solid var(--gray-300)', padding: '10px' }} required value={newTask.due_date} onChange={e => setNewTask({...newTask, due_date: e.target.value})} />
+
+          <div className="ws-form-grid" style={{ gridTemplateColumns: '200px 1fr' }}>
+            <div className="ws-form-group">
+              <label>Deadline</label>
+              <input
+                type="date"
+                required
+                value={newTask.due_date}
+                onChange={e => setNewTask({ ...newTask, due_date: e.target.value })}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <button type="submit" className="ws-btn ws-btn-primary">Assign Task</button>
+            </div>
           </div>
-          <button type="submit" style={{
-              background: 'var(--primary-600)',
-              color: 'white',
-              border: 'none',
-              padding: '10px 24px',
-              borderRadius: 'var(--radius-lg)',
-              fontWeight: 600,
-              cursor: 'pointer'
-          }}>Assign Task</button>
         </form>
       )}
 
-      <div style={{ display: 'flex', gap: '24px', overflowX: 'auto', paddingBottom: '20px' }}>
-        {statuses.map(status => (
-          <div key={status} style={{ 
-              flex: '1', 
-              minWidth: '300px',
-              background: 'rgba(255, 255, 255, 0.6)', 
-              backdropFilter: 'blur(10px)',
-              padding: '20px', 
-              borderRadius: 'var(--radius-xl)',
-              border: '1px solid rgba(255, 255, 255, 0.8)',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
-          }}>
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '20px',
-                paddingBottom: '15px',
-                borderBottom: status === 'todo' ? '2px solid var(--info-500)' : status === 'inProgress' ? '2px solid var(--warning-500)' : '2px solid var(--success-500)'
-            }}>
-                <h3 style={{ textTransform: 'capitalize', fontSize: '1.1rem', fontWeight: 700, color: 'var(--gray-800)', margin: 0 }}>
-                    {status.replace('inProgress', 'In Progress').toUpperCase()}
-                </h3>
-                <span style={{ background: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, color: 'var(--gray-500)', boxShadow: 'var(--shadow-sm)' }}>
-                    {tasks.filter(t => t.status === status).length}
-                </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {tasks.filter(t => t.status === status).map(task => (
-                <div key={task.id} style={{ 
-                    background: 'white', 
-                    padding: '20px', 
-                    borderRadius: 'var(--radius-lg)', 
-                    boxShadow: 'var(--shadow-sm)',
-                    border: '1px solid var(--gray-100)',
-                    transition: 'transform 0.2s',
-                    cursor: 'pointer'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: status === 'done' ? 'var(--success-500)' : 'var(--primary-500)' }}></div>
-                        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: 'var(--gray-900)' }}>{task.title}</h4>
-                    </div>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', margin: '0 0 15px 0', lineHeight: 1.5 }}>{task.description}</p>
-                    
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', paddingTop: '15px', borderTop: '1px dashed var(--gray-200)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--gradient-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700 }} title={task.assignee_name}>
-                                {task.assignee_name ? task.assignee_name.substring(0,2).toUpperCase() : '??'}
-                            </div>
-                            <small style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 500 }}>{new Date(task.due_date).toLocaleDateString()}</small>
-                        </div>
-
-                        {(role === 'founder' || String(task.assignee_id) === String(userId)) ? (
-                        <select 
-                            style={{ 
-                                padding: '4px 8px', 
-                                fontSize: '0.75rem', 
-                                border: '1px solid var(--gray-200)', 
-                                borderRadius: '6px', 
-                                background: 'var(--gray-50)',
-                                outline: 'none',
-                                cursor: 'pointer',
-                                fontWeight: 600,
-                                color: 'var(--gray-700)'
-                            }}
-                            value={task.status} 
-                            onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                        >
-                            <option value="todo">To Do</option>
-                            <option value="inProgress">In Progress</option>
-                            <option value="done">Done</option>
-                        </select>
-                        ) : (
-                        <span style={{ 
-                            fontSize: '0.7rem', 
-                            padding: '4px 10px', 
-                            borderRadius: '12px', 
-                            background: status === 'done' ? 'var(--success-50)' : 'var(--gray-100)', 
-                            color: status === 'done' ? 'var(--success-600)' : 'var(--gray-600)',
-                            fontWeight: 600
-                        }}>{status.replace('inProgress', 'In Progress').toUpperCase()}</span>
-                        )}
-                    </div>
+      {/* Kanban Board */}
+      <div className="ws-kanban">
+        {COLS.map(col => {
+          const colTasks = tasks.filter(t => t.status === col.key);
+          return (
+            <div key={col.key} className="ws-kanban-col">
+              <div className="ws-kanban-head">
+                <div className="ws-kanban-head-left">
+                  <span className={`ws-col-dot ${col.dot}`} />
+                  <span>{col.label}</span>
                 </div>
+                <span className="ws-col-count">{colTasks.length}</span>
+              </div>
+
+              <div className="ws-kanban-body">
+                {colTasks.length === 0 ? (
+                  <div className="ws-empty-col">
+                    <span className="ws-empty-col-icon">📭</span>
+                    No tasks here
+                  </div>
+                ) : colTasks.map(task => (
+                  <div key={task.id} className="ws-task-card">
+                    <div className="ws-task-card-top">
+                      <div className="ws-task-title">{task.title}</div>
+                    </div>
+                    {task.description && (
+                      <div className="ws-task-desc">{task.description}</div>
+                    )}
+                    <div className="ws-task-footer">
+                      <div className="ws-assignee-chip">
+                        <div className="ws-avatar-xs" title={task.assignee_name}>
+                          {task.assignee_name ? task.assignee_name.substring(0, 2).toUpperCase() : '??'}
+                        </div>
+                        <span className="ws-task-date">
+                          {task.due_date ? new Date(task.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No deadline'}
+                        </span>
+                      </div>
+
+                      {(role === 'founder' || String(task.assignee_id) === String(userId)) ? (
+                        <select
+                          className="ws-status-select"
+                          value={task.status}
+                          onChange={e => handleStatusChange(task.id, e.target.value)}
+                        >
+                          <option value="todo">To Do</option>
+                          <option value="inProgress">In Progress</option>
+                          <option value="done">Done</option>
+                        </select>
+                      ) : (
+                        <span className={`ws-status-badge ${col.key}`}>{col.label}</span>
+                      )}
+                    </div>
+                  </div>
                 ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

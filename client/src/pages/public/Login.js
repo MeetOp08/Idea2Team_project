@@ -51,6 +51,54 @@ const Login = () => {
         });
     }
 
+    const handleOAuth = async (provider) => {
+        // Simulated OAuth Pop-up
+        Swal.fire({
+            title: `Connecting to ${provider}...`,
+            html: 'Please wait while we securely authenticate you.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Simulate network delay for OAuth redirection flow
+        setTimeout(() => {
+            // Simulated OAuth payload that you would normally get from Google/GitHub
+            const mockOAuthData = {
+                email: `demo_${provider.toLowerCase()}@example.com`,
+                full_name: `${provider} User`,
+                provider: provider,
+                role: 'freelancer' // Defaults to freelancer, but we can't easily ask during a 1-click login unless we redirect to onboarding
+            };
+
+            axios.post("http://localhost:1337/api/oauth", mockOAuthData)
+                .then((res) => {
+                    if (res.data.success) {
+                        sessionStorage.setItem("user_id", res.data.user.user_id);
+                        sessionStorage.setItem("role", res.data.user.role);
+                        sessionStorage.setItem("fullname", res.data.user.fullname);
+
+                        Swal.fire({
+                            title: res.data.isNew ? "Account Created!" : "Welcome Back!",
+                            text: `Successfully authenticated via ${provider}`,
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            if (res.data.user.role === 'founder') {
+                                window.location.href = "/founder/dashboard";
+                            } else {
+                                window.location.href = "/freelancer/dashboard";
+                            }
+                        });
+                    }
+                }).catch(err => {
+                    Swal.fire("Error", err.response?.data?.message || `${provider} authentication failed.`, "error");
+                });
+        }, 1500); // 1.5 second simulated redirect
+    };
+
     return (
         <div className="login-page">
             <div className="login-visual">
@@ -107,10 +155,10 @@ const Login = () => {
 
                     <div className="login-divider">or</div>
 
-                    <button className="login-btn login-btn-secondary login-mb-8">
+                    <button className="login-btn login-btn-secondary login-mb-8" onClick={() => handleOAuth('Google')}>
                         🔵 Continue with Google
                     </button>
-                    <button className="login-btn login-btn-secondary">
+                    <button className="login-btn login-btn-secondary" onClick={() => handleOAuth('GitHub')}>
                         ⚫ Continue with GitHub
                     </button>
 

@@ -2,6 +2,7 @@ import '../../styles/DashboardLayout.css';
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import Footer from './Footer';
 
 const DashboardLayout = ({ role = 'founder', children }) => {
     const [collapsed, setCollapsed] = useState(false);
@@ -16,6 +17,7 @@ const DashboardLayout = ({ role = 'founder', children }) => {
                 <main className="dashboard-content">
                     {children}
                 </main>
+                 <Footer />
             </div>
         </div>
     );

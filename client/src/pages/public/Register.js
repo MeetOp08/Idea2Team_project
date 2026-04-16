@@ -36,6 +36,56 @@ const Register = () => {
             return Swal.fire("Error", err.response?.data?.message || "An error occurred while creating your account. Please try again.", "error");
         })
     }
+
+    const handleOAuth = async (provider) => {
+        // Read the role selected on the registration page
+        const role = document.querySelector('input[name="role"]:checked')?.value || 'freelancer';
+
+        // Simulated OAuth Pop-up
+        Swal.fire({
+            title: `Connecting to ${provider}...`,
+            html: 'Please wait while we securely authenticate you.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Simulate network delay for OAuth redirection flow
+        setTimeout(() => {
+            const mockOAuthData = {
+                email: `demo_${provider.toLowerCase()}@example.com`,
+                full_name: `${provider} User`,
+                provider: provider,
+                role: role // Pass the selected role
+            };
+
+            axios.post("http://localhost:1337/api/oauth", mockOAuthData)
+                .then((res) => {
+                    if (res.data.success) {
+                        sessionStorage.setItem("user_id", res.data.user.user_id);
+                        sessionStorage.setItem("role", res.data.user.role);
+                        sessionStorage.setItem("fullname", res.data.user.fullname);
+
+                        Swal.fire({
+                            title: "Authentication Successful!",
+                            text: `Successfully authenticated via ${provider}`,
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            if (res.data.user.role === 'founder') {
+                                window.location.href = "/founder/dashboard";
+                            } else {
+                                window.location.href = "/freelancer/dashboard";
+                            }
+                        });
+                    }
+                }).catch(err => {
+                    Swal.fire("Error", err.response?.data?.message || `${provider} authentication failed.`, "error");
+                });
+        }, 1500); // 1.5 second simulated redirect
+    };
     return (
         <div className="register-page">
             <div className="register-visual">
@@ -103,8 +153,11 @@ const Register = () => {
 
                     <div className="register-divider">or</div>
 
-                    <button className="register-btn register-btn-secondary register-mb-8">
+                    <button className="register-btn register-btn-secondary register-mb-8" onClick={() => handleOAuth('Google')}>
                         🔵 Sign up with Google
+                    </button>
+                    <button className="register-btn register-btn-secondary" onClick={() => handleOAuth('GitHub')} style={{marginTop: '10px'}}>
+                        ⚫ Sign up with GitHub
                     </button>
 
                     <p className="register-footer">
