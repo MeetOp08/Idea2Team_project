@@ -35,10 +35,11 @@ function cleanSkills(skills) {
 }
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "idea2team",
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "idea2team",
+  port: process.env.DB_PORT || 3306,
 });
 
 const WORKSPACE_ROLES = ["owner", "admin", "member", "viewer"];
@@ -231,28 +232,66 @@ app.post("/api/oauth", (req, res) => {
 });
 
 // Forgot Password Endpoint
-app.post("/api/forgot-password", (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ message: "Email is required" });
-  }
-  const query = "SELECT * FROM users WHERE email = ?";
-  db.query(query, [email], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: "Server error" });
-    }
-    if (result.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No account associated with this email" });
-    }
-    // In a real app, generate a reset token and email it.
-    return res.json({
-      message: "Password reset link has been sent (simulated).",
+const otpStore = new Map();
+
+// 1. Send OTP
+app.post('/api/forgot-password/send-otp', (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    // Ensure user exists
+    db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+        if (err) return res.status(500).json({ message: "Database error" });
+        if (results.length === 0) return res.status(404).json({ message: "User with this email not found" });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
+        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+        otpStore.set(email, { otp, expiresAt });
+
+        // Fake sending mail for dev purposes if we don't have real credentials
+        console.log(`[DEV OTP] For ${email}: ${otp}`);
+
+        // Uncomment below to send real emails if transporter is configured
+        /*
+        transporter.sendMail({
+            from: 'testidea2team@gmail.com',
+            to: email,
+            subject: 'Idea2Team - Password Reset OTP',
+            text: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`
+        }).catch(e => console.log("Mail send generic error", e));
+        */
+
+        return res.status(200).json({ message: "OTP sent successfully" });
     });
-  });
 });
+
+// 2. Verify OTP
+app.post('/api/forgot-password/verify-otp', (req, res) => {
+    const { email, otp } = req.body;
+    const record = otpStore.get(email);
+    if (!record) return res.status(400).json({ message: "No OTP found for this email" });
+    if (Date.now() > record.expiresAt) return res.status(400).json({ message: "OTP has expired" });
+    if (record.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
+
+    return res.status(200).json({ message: "OTP verified successfully" });
+});
+
+// 3. Reset Password
+app.post('/api/forgot-password/reset', (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    const record = otpStore.get(email);
+    
+    if (!record || record.otp !== otp) return res.status(400).json({ message: "Invalid session or OTP" });
+    if (Date.now() > record.expiresAt) return res.status(400).json({ message: "OTP has expired" });
+
+    db.query("UPDATE users SET password = ? WHERE email = ?", [newPassword, email], (err) => {
+        if (err) return res.status(500).json({ message: "Failed to reset password" });
+        
+        otpStore.delete(email); // clear OTP
+        return res.status(200).json({ message: "Password reset successfully" });
+    });
+}); 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public");
